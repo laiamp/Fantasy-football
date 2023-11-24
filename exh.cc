@@ -18,7 +18,6 @@ using vp = vector <Player>;
 using vi = vector <int>;
 
 
-
 string OUTPUT_FILE;
 chrono::high_resolution_clock::time_point start;
 
@@ -30,7 +29,8 @@ vector <vp> get_players_pos(const vp& alineacio, vi n){
         n[idx]--;
         players_pos[idx].push_back(alineacio[i]);
         if (n[idx] == 0) idx++;
-    }    
+    }
+    return players_pos;    
 }
 
 void write_result(const vp& alineacio, vi n){
@@ -86,9 +86,11 @@ void generar_alineacio(int i, int k, vp& alineacio, const vp& jugadors, vi n, in
         points: punts fins el kèssim jugador de l'alineació
     */
     Player jugador = jugadors[i];
-    if (points > max_points and n[0] == 0 and n[1] == 0 and n[2] == 0 and n[3] == 0){ // totes les posicions assignades
-        max_points = points;
-        write_result(alineacio, n);
+    if (n[0] == 0 and n[1] == 0 and n[2] == 0 and n[3] == 0){ // totes les posicions assignades
+        if (points > max_points){
+            max_points = points;
+            write_result(alineacio, n);
+        }
     }
     else{
         int idx;
@@ -116,18 +118,18 @@ vp get_players_from_data(string data_file){
     string line;
 
     while (not data.eof()) {
-        string name, club, position;
-        int p;
+        string name, club, position, aux2;
+        int price, p;
+        char aux;
         getline(data,name,';');    if (name == "") break;
         getline(data,position,';');
-        int price; data >> price;
-        char aux; data >> aux;
+        data >> price;
+        data >> aux;
         getline(data,club,';');
         data >> p;
-        string aux2;
         getline(data, aux2);
-        players.push_back(Player(name, position, price, club, p));
-    
+        Player player = {name, position, price, club, p};
+        players.push_back(player);
     }
     data.close();
     return players;
