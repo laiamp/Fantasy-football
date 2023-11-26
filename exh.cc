@@ -17,9 +17,9 @@ struct Player{
 using vp = vector <Player>;
 using vi = vector <int>;
 
-
 string OUTPUT_FILE;
 chrono::high_resolution_clock::time_point start;
+int n1, n2, n3;
 
 vector <vp> get_players_pos(const vp& alineacio, vi n){
     vector <vp> players_pos(4, vp(0));
@@ -33,7 +33,7 @@ vector <vp> get_players_pos(const vp& alineacio, vi n){
     return players_pos;    
 }
 
-void write_result(const vp& alineacio, vi n){
+void write_result(const vp& alineacio){
     
     ofstream out(OUTPUT_FILE);
 
@@ -42,11 +42,13 @@ void write_result(const vp& alineacio, vi n){
     out << time.count() << endl;
 
     //players per position
+    vi n = {1, n1, n2, n3};
     vector <vp> players_pos = get_players_pos(alineacio, n);   
-    vector <string> pos = {"POR", "DEF", "MIG", "DAV"};
-    for (int i = 0; i < 4; i++){
+    vector <string> pos = {"POR: ", "DEF: ", "MIG: ", "DAV: "};
+    //cout << players_pos[1][0].name;
+    for (int i = 0; i < 4; i++){ // i posicion
         out << pos[i];
-        for (int j = 0; j < n[i]; j++){
+        for (int j = 0; j < n[i]; j++){ // j-essimo jugador de la posicion
             if (j > 0) out << ";";
             out << players_pos[i][j].name;
         }
@@ -77,7 +79,7 @@ PODES:
 void generar_alineacio(int i, int k, vp& alineacio, const vp& jugadors, vi n, int t, const int& j, int points, int& max_points){
     /*
         i: index jugador de les dades
-        k: index alineaco
+        k: index alineacio
         alineacio: jugadors escollits
         jugadors: dades de tots els jugadors
         n: vector amb el nombre de jugadors per cada posicio
@@ -89,7 +91,7 @@ void generar_alineacio(int i, int k, vp& alineacio, const vp& jugadors, vi n, in
     if (n[0] == 0 and n[1] == 0 and n[2] == 0 and n[3] == 0){ // totes les posicions assignades
         if (points > max_points){
             max_points = points;
-            write_result(alineacio, n);
+            write_result(alineacio);
         }
     }
     else{
@@ -147,7 +149,7 @@ int main(int argc, char** argv){
 
     vp players = get_players_from_data(argv[1]);
 
-    int n1, n2, n3, t, j;
+    int t, j;
     query >> n1 >> n2 >> n3 >> t >> j;
 
     OUTPUT_FILE = argv[3];
