@@ -69,18 +69,20 @@
 
     /*
     PODES:
-        - No rebutjar si N_i - index  0
+        - No rebutjar si N_i - index  0 --> he de precalcular quants jugadors hi ha de cada posicio
         - No agafar cap jugador que superi els J euros
         - No agafar cap jugador que superi els T euros
         - Precalcular el màxim de punts per posició amb una pque
         - Precalcular el mínim d'euros per posició (o els n_i de menys euros) amb una pque
         - Comptar el total de cada posició i els count de visitats
-    */
-   void check_alineacio(const vp& alineacio){
-        for (Player p: alineacio) cout << p.name <<" "<< p.price <<" " << p.points << endl;
-   }
 
-    void generar_alineacio(int i, int k, vp& alineacio, const vp& jugadors, vi n, long long int t, const long long int& j, long long int points, vp& best_alineacio, long long int& max_points){
+        - Faig una array mida 450. A cada posició hi haurà 4 vectors.
+    */
+    void check_alineacio(const vp& alineacio){
+        for (Player p: alineacio) cout << p.name <<" "<< p.price <<" " << p.points << endl;
+    }
+
+    void generar_alineacio(int i, vp& alineacio, const vp& jugadors, vi n, long long int t, const long long int& j, long long int points, long long int& max_points){
         /*
             i: index jugador de les dades
             k: index alineacio
@@ -92,13 +94,12 @@
             points: punts fins el kèssim jugador de l'alineació
         */
         
-        if (k == int(alineacio.size()) and n[0] == 0 and n[1] == 0 and n[2] == 0 and n[3] == 0){ // totes les posicions assignades
+        if (11 == int(alineacio.size()) and n[0] == 0 and n[1] == 0 and n[2] == 0 and n[3] == 0){ // totes les posicions assignades
             //check_alineacio(alineacio);
 
             if (points > max_points){
                 max_points = points;
-                best_alineacio = alineacio;
-                write_result(best_alineacio);
+                write_result(alineacio);
             }
         }
         else if (i < int(jugadors.size())){
@@ -107,17 +108,17 @@
             if (jugador.pos == "por") idx = 0;
             else if (jugador.pos == "def") idx = 1;
             else if (jugador.pos == "mig") idx = 2;
-            else idx = 3; 
-
+            else idx = 3;
             if (n[idx] > 0 and jugador.price <= j and t - jugador.price >= 0){
                 n[idx]--;
-                alineacio[k] = jugador;
-                generar_alineacio(i+1, k+1, alineacio, jugadors, n, t - jugador.price, j, points + jugador.points, best_alineacio, max_points);
+                alineacio.push_back(jugador);
+                generar_alineacio(i+1, alineacio, jugadors, n, t - jugador.price, j, points + jugador.points, max_points);
                 n[idx]++;
+                alineacio.pop_back();
             }
-            else{
-                generar_alineacio(i+1, k, alineacio, jugadors, n, t, j, points, best_alineacio, max_points);
-            }
+            
+            generar_alineacio(i+1, alineacio, jugadors, n, t, j, points, max_points);
+        
         }
     }
 
@@ -163,12 +164,12 @@
         
         vector<int> n = {1, n1, n2, n3};
         OUTPUT_FILE = argv[3];
-        vp alineacio(11), best_alineacio(11);
+        vp alineacio(11);
         
         long long int max_points = 0, points = 0;
 
         start = chrono::high_resolution_clock::now();
-        generar_alineacio(0, 0, alineacio, players, n, t, j, points, best_alineacio, max_points);
+        generar_alineacio(0, alineacio, players, n, t, j, points, max_points);
         
         query.close();
     }
