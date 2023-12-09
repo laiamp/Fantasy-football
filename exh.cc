@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <chrono>
+#include <cstring>
 
 using namespace std;
 
@@ -50,7 +51,8 @@ void write_result(const vp& alineacio, const long long int& points, const long l
     vector <string> positions = {"por", "def", "mig", "dav"};
 
     for (string pos: positions){
-        out << pos << ": ";
+        for (char c: pos) out << toupper(c); 
+        out << ": ";
         for (int i = 0; i < int(players_pos[pos].size()); i++){
             out << (i == 0 ? "" : ";") << players_pos[pos][i].name;
         }
@@ -75,6 +77,10 @@ void check_alineacio(const vp& alineacio){
     for (Player p: alineacio) cout << p.name <<" "<< p.price <<" " << p.points << endl;
 }
 
+bool promising(int i, unordered_map <string, int> n){
+    return true;
+}
+
 void generar_alineacio(int i, vp& alineacio, unordered_map <string, int> n, long long int total,
                         long long int points, long long int& max_points,  
                         unordered_map<string, long long int>& m_min_price){
@@ -86,36 +92,40 @@ void generar_alineacio(int i, vp& alineacio, unordered_map <string, int> n, long
         points: suma dels punts de tots els jugadors de l'alineació que portem fins ara
         max_points: maxim de punts que hem aconseguit en totes les alineacions generades
         m_min_price:
-    */
 
+        create map unvisited
+    */
+    //check_alineacio(alineacio);
     if (11 == int(alineacio.size()) and n["por"] == 0 and n["def"] == 0 and n["mig"] == 0 and n["dav"] == 0){ // totes les posicions assignades
-        //check_alineacio(alineacio);
+        //
         if (points > max_points){
             max_points = points;
             write_result(alineacio, points, total);
         }
     }
 
-    else if (i < int(PLAYERS.size())){
+    else if (i + n["por"] + n["def"] + n["mig"] + n["dav"] - 1 < int(PLAYERS.size())){
         
         Player player = PLAYERS[i];
         
         long long int points_estimats = points + player.points*(n["por"] + n["def"] + n["mig"] + n["dav"]);
+        
     
-        if (n[player.pos] > 0 and total + player.price <= T and points_estimats > max_points){
+        if (n[player.pos] > 0 and total + player.price <= T and points_estimats >= max_points){
             n[player.pos]--;
             alineacio.push_back(player);
             generar_alineacio(i+1, alineacio, n, total + player.price, points + player.points, max_points, m_min_price);
             n[player.pos]++;
             alineacio.pop_back();
         }
-
+        
         generar_alineacio(i+1, alineacio, n, total, points, max_points, m_min_price);
     }
 }
 
 
-vp get_players_from_data(string data_file, unordered_map <string, long long int>& min_price, long long int J){
+vp get_players_from_data(string data_file, unordered_map <string, long long int>& min_price, 
+                        unordered_map <string, int>& unvisited,long long int J){
     ifstream data(data_file);
     vp players;
     string line;
@@ -134,6 +144,7 @@ vp get_players_from_data(string data_file, unordered_map <string, long long int>
             Player player = {name, position, price, club, p};
             players.push_back(player);
             min_price[player.pos] = min(player.price, min_price[player.pos]);
+            unvisited[position]++;
         }
     }
     data.close();
@@ -153,8 +164,8 @@ int main(int argc, char** argv){
     //argv[1]: nom arxiu consulta
     //argv[2]: nom arxiu output
 
-    if (argc != 2) {
-        cout << "Syntax: " << argv[0] << " data_base.txt" << endl;
+    if (argc != 4) {
+        cout << "Syntax: " << argv[0] << " data_base.txt query.txt output.txt" << endl;
         exit(1);
     }
     
@@ -166,18 +177,18 @@ int main(int argc, char** argv){
     query >> N1 >> N2 >> N3 >> T >> J;
     
     unordered_map <string, int> n = {{"por", 1}, {"def", N1}, {"mig", N2}, {"dav", N3}};
+    unordered_map <string, int> unvisited = {{"por", 0}, {"def", 0}, {"mig", 0}, {"dav", 0}};
 
     start = chrono::high_resolution_clock::now();
     
-    PLAYERS = get_players_from_data(argv[1], m_min_price, J);
+    PLAYERS = get_players_from_data(argv[1], m_min_price, unvisited, J);
     sort(PLAYERS.begin(), PLAYERS.end(), comp);
-
     OUTPUT_FILE = argv[3];
     vp alineacio;
     
-    long long int max_points = 0, points = 0;
+    long long int max_points = 0;
     
-    generar_alineacio(0, alineacio, n, T, points, max_points, m_min_price);
+    generar_alineacio(0, alineacio, n, 0, 0, max_points, m_min_price);
     
     query.close();
 }
