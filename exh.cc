@@ -30,7 +30,7 @@ long long int T;
 
 
 unordered_map <string, vector<Player>> get_players_pos(const vp& lineup){
-                        unordered_map <string, vector<Player>> players_pos = {{"por", {}}, {"def", {}}, {"mig", {}}, {"dav", {}}};
+    unordered_map <string, vector<Player>> players_pos = {{"por", {}}, {"def", {}}, {"mig", {}}, {"dav", {}}};
     for (Player p: lineup){
         players_pos[p.pos].push_back(p);
     }
@@ -73,13 +73,20 @@ void check_lineup(const vp& lineup){
 }
 
 
-bool candidate(int i, unordered_map <string, int> n, const long long int & points, const long long int& total,
+bool candidate(int i, unordered_map <string, int> n, const long long int & points, const long long int& cost,
                 const long long int& max_points){
-    /*Returns whether or not exists a promising solution picking the i-th player*/
+    /*Returns whether or not exists a promising solution picking the i-th player
+    
+    i: index of the current player from PLAYERS
+    n: map with the amount of the needed players per position
+    points: sum of the points of the players currently in the lineup
+    cost: sum of the prices of the players currently in the lineup
+    max_points: max of points of all the generated lineups until that moment
+    */
 
     Player player = PLAYERS[i];
     if (n[player.pos] == 0) return false;
-    if (total + player.price > T) return false;
+    if (cost + player.price > T) return false;
 
     int k = n["por"] + n["def"] + n["mig"] + n["dav"];
     if (i + k >= int(PLAYERS.size())) return false;
@@ -96,7 +103,7 @@ bool candidate(int i, unordered_map <string, int> n, const long long int & point
 }
 
 
-void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, long long int total,
+void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, long long int cost,
                         long long int points, long long int& max_points,  
                         unordered_map<string, long long int>& m_min_price,
                         unordered_map <string, int> unvisited){
@@ -106,9 +113,9 @@ void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, long long
         i: index of the current player from PLAYERS
         lineup: chosen players at the moment
         n: map with the amount of the needed players per position
-        total: sum of the prices of the players currently in the lineup
-        points: suma dels punts de tots els jugadors de l'alineació que portem fins ara
-        max_points: maxim de punts que hem aconseguit en totes les alineacions generades
+        cost: sum of the prices of the players currently in the lineup
+        points: sum of the points of the players currently in the lineup
+        max_points: max of points of all the generated lineups until that moment
         m_min_price: map with the minimum price of all players from the same position 
         unvisited: map with the amount of unvisited players per position
     */
@@ -119,7 +126,7 @@ void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, long long
         
         if (points > max_points){
             max_points = points;
-            write_result(lineup, points, total);
+            write_result(lineup, points, cost);
         }
     }
 
@@ -127,14 +134,14 @@ void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, long long
         
         unvisited[player.pos]--;
             
-        if (candidate(i, n, points, total, max_points)){
+        if (candidate(i, n, points, cost, max_points)){
             n[player.pos]--;
             lineup.push_back(player);
-            generate_lineup(i+1, lineup, n, total + player.price, points + player.points, max_points, m_min_price, unvisited);
+            generate_lineup(i+1, lineup, n, cost + player.price, points + player.points, max_points, m_min_price, unvisited);
             n[player.pos]++;
             lineup.pop_back();
         }
-        generate_lineup(i+1, lineup, n, total, points, max_points, m_min_price, unvisited);
+        generate_lineup(i+1, lineup, n, cost, points, max_points, m_min_price, unvisited);
     }
 }
 
@@ -142,7 +149,7 @@ void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, long long
 vp get_players_from_data(string data_file, unordered_map <string, long long int>& min_price, 
                         unordered_map <string, int>& unvisited, const long long int& J){
     /*Returns a vector of the players from data_file. Only contains the players whose price is less than 
-    or equal to J
+    or equal to J. The maps min_price and unvisited are modified.
     
     format BD "Name;Position;Price;club;points"
     */
