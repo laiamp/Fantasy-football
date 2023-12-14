@@ -30,7 +30,9 @@ long long int T;
 
 
 unordered_map <string, vector<Player>> get_players_pos(const vp& lineup){
-    unordered_map <string, vector<Player>> players_pos = {{"por", {}}, {"def", {}}, {"mig", {}}, {"dav", {}}};
+    /*Returns an unordered map whose keys are the positions and the values 
+    are the players of the lineup in that position*/
+    unordered_map <string, vector<Player>> players_pos;
     for (Player p: lineup){
         players_pos[p.pos].push_back(p);
     }
@@ -39,7 +41,9 @@ unordered_map <string, vector<Player>> get_players_pos(const vp& lineup){
 
 
 void write_result(const vp& lineup, const long long int& points, const long long int& price){
-    
+    /*Writes the solution in the OUTPUT_FILE*/
+
+
     ofstream out(OUTPUT_FILE);
 
     unordered_map <string, vector<Player>> players_pos = get_players_pos(lineup);   
