@@ -21,20 +21,10 @@ struct Player{
 };
 
 using vp = vector <Player>;
-
-struct solution{
-    vp lineup;
-    long long int price;
-    long long int points;
-
-};
-
 using vli = vector <long long int>;
-
 
 string OUTPUT_FILE;
 chrono::high_resolution_clock::time_point start;
-
 float THRESHOLD_RATIO = 0.5;
 
 
@@ -113,21 +103,13 @@ vp get_lineup(vp players, unordered_map <string, int> n, const long long int& T)
     
 }
 
-float get_ratio(long long int points, long long int price){
-    if (price == 0) return 1;
-    return float(points)/ price * 100000;
-}
-
-/*idea: 
-agrupem per posicions. ordenem cada posicio segons ratio
-el ratio pot tenir en compte la diferencia amb el total (penalitza els que tinguin un preu <<<<<< total)
-*/
 
 bool comp(const Player& a, const Player& b) {
     /*Auxiliar function to sort the players depending on their points*/
     if(a.points == b.points) return a.price > b.price;
     return a.points > b.points;
 }
+
 
 vp get_players_from_data(string data_file, const long long int& J){
     /*Returns a vector of the players from data_file. Only contains the players whose price is less than 
@@ -136,9 +118,6 @@ vp get_players_from_data(string data_file, const long long int& J){
     Players with a bad points-price relationship are filtered.
     Players with price = 0 are always kept.
     
-    a - eliminem tots els que estiguin un X% per sota de la mitjana (ratio threshold)
-    b - eliminem els X% amb menor ratio (eliminem una quantita determinada de jugadors)
-
     format DB "Name;Position;Price;club;points"
     */
 
@@ -173,11 +152,6 @@ vp get_players_from_data(string data_file, const long long int& J){
 
 }
 
-bool comp_ratio(){
-    //si dos tenen el mateix ratio, ens quedem amb el de mes punts
-    return true;
-}
-
 
 int main(int argc, char** argv){
     /*
@@ -199,6 +173,7 @@ int main(int argc, char** argv){
     int N1, N2, N3;
 
     query >> N1 >> N2 >> N3 >> T >> J;
+    query.close();
     
     unordered_map <string, int> n = {{"por", 1}, {"def", N1}, {"mig", N2}, {"dav", N3}};
     start = chrono::high_resolution_clock::now();
@@ -215,6 +190,4 @@ int main(int argc, char** argv){
     }
     
     write_result(lineup, points, price);
-
-    query.close();
 }
