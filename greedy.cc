@@ -68,11 +68,6 @@ void write_result(const vp& lineup, const long long int& points, const long long
     out.close();
 }
 
-void check_lineup(const vp& lineup){
-    /*Auxiliar function for debugging purposes*/
-    for (Player p: lineup) cout << p.name <<" "<< p.price <<" " << p.points << endl;
-}
-
 
 vp get_lineup(vp players, unordered_map <string, int> n, const long long int& T){
     /*
