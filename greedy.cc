@@ -106,6 +106,13 @@ bool comp(const Player& a, const Player& b) {
 }
 
 
+float get_ratio(long long int points, long long int price){
+    /*Returns the ratio given the points and the price. The higher the ratio the better*/
+    if (price == 0) return 1;
+    return float(points)/ price * 100000;
+}
+
+
 vp get_players_from_data(string data_file, const long long int& J){
     /*Returns a vector of the players from data_file. Only contains the players whose price is less than 
     or equal to J. 
