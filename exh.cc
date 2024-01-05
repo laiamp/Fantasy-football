@@ -26,7 +26,6 @@ using vli = vector <int>;
 string OUTPUT_FILE;
 chrono::high_resolution_clock::time_point start;
 vp PLAYERS;
-int T;
 
 
 unordered_map <string, vp> get_players_pos(const vp& lineup){
@@ -73,7 +72,7 @@ void write_result(const vp& lineup, const int& points, const int& price){
 
 
 bool candidate(int i, unordered_map <string, int> n, const int & points, const int& cost,
-                const int& max_points){
+                const int& max_points, const int& T){
     /*Returns whether or not exists a promising solution picking the i-th player
     
     i: index of the current player from PLAYERS
@@ -102,7 +101,7 @@ bool candidate(int i, unordered_map <string, int> n, const int & points, const i
 void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
                         int points, int& max_points,  
                         unordered_map<string, int>& m_min_price,
-                        unordered_map <string, int> unvisited){
+                        unordered_map <string, int> unvisited, const int& T){
     /*
         Fills up the lineup vector
 
@@ -116,8 +115,6 @@ void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
         unvisited: map with the amount of unvisited players per position
     */
     
-    Player player = PLAYERS[i];
-
     if (n["por"] == 0 and n["def"] == 0 and n["mig"] == 0 and n["dav"] == 0){ //could be used lineup.size() == 11 instead
         
         if (points > max_points){
@@ -127,7 +124,7 @@ void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
     }
 
     else if (i < int(PLAYERS.size()) and n[player.pos] <= unvisited[player.pos]){
-        
+        Player player = PLAYERS[i];
         unvisited[player.pos]--;
             
         if (candidate(i, n, points, cost, max_points)){
@@ -173,14 +170,15 @@ vp get_players_from_data(string data_file, unordered_map <string, int>& min_pric
     }
     data.close();
     return players;
-
 }
+
 
 bool prev(const Player& a, const Player& b) {
     /*Auxiliar function to sort the players depending on their points*/
     if(a.points == b.points) return a.price < b.price;
     return a.points > b.points;
 }
+
 
 int main(int argc, char** argv){
     /*
@@ -196,25 +194,24 @@ int main(int argc, char** argv){
     
     OUTPUT_FILE = argv[3];
 
-    unordered_map <string, int> m_min_price = {{"por", 999999999}, {"def", 999999999}, {"mig", 999999999}, {"dav", 999999999}};
+    unordered_map <string, int> min_price = {{"por", 999999999}, {"def", 999999999}, {"mig", 999999999}, {"dav", 999999999}};
     
     ifstream query(argv[2]);
     
-    int N1, N2, N3, J;
+    int N1, N2, N3, T, J;
     query >> N1 >> N2 >> N3 >> T >> J;
+    query.close();
     
     unordered_map <string, int> n = {{"por", 1}, {"def", N1}, {"mig", N2}, {"dav", N3}};
 
     start = chrono::high_resolution_clock::now();
     
     unordered_map <string, int> unvisited = {{"por", 0}, {"def", 0}, {"mig", 0}, {"dav", 0}};
-    PLAYERS = get_players_from_data(argv[1], m_min_price, unvisited, J);
+    PLAYERS = get_players_from_data(argv[1], min_price, unvisited, J);
     sort(PLAYERS.begin(), PLAYERS.end(), prev);
 
     vp lineup;
     int max_points = 0;
     
-    generate_lineup(0, lineup, n, 0, 0, max_points, m_min_price, unvisited);
-    
-    query.close();
+    generate_lineup(0, lineup, n, 0, 0, max_points, min_price, unvisited, T);
 }
