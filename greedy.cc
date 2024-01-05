@@ -130,7 +130,7 @@ Solution get_solution(vp players, unordered_map <string, int> n, const int& T,
 float get_ratio(int points, int price){
     /*Returns the ratio given the points and the price. The higher the ratio the better*/
     if (price == 0) return 1;
-    return float(points)/ price * 10000;
+    return pow(float(points), 1.5)/ price * 1000;
 }
 
 
