@@ -30,7 +30,6 @@ using vp = vector <Player>;
 string OUTPUT_FILE;
 chrono::high_resolution_clock::time_point start;
 
-
 unordered_map <string, vp> get_players_pos(const vp& lineup){
     /*Returns an unordered map whose keys are the positions and the values 
     are the players of the lineup in that position*/
@@ -75,11 +74,7 @@ void write_result(vp& lineup, const int& points, const int& price, const string&
 bool comp(const Player& p1, const Player& p2){
     /*
     Auxiliar function to sort the players based on the players points and price
-
     A and B are empirically adjusted coefficients.
-
-    const float A = 2;
-    const float B = -1;
     */
 
     const float A = 3.2;
@@ -103,7 +98,6 @@ Solution get_solution(vp& players, unordered_map <string, int> n, const int& T){
     */
     Solution solution = {{}, 0, 0};
     int i = 0;
-    //assert de que sempre podrem fer una solucio
 
     sort(players.begin(), players.end(), comp);
 
