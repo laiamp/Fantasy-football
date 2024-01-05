@@ -17,7 +17,6 @@ struct Player{
     int price;
     string team;
     int points;
-    float ratio;
 };
 
 struct Solution{
@@ -74,44 +73,32 @@ void write_result(const vp& lineup, const int& points, const int& price, const s
     out.close();
 }
 
-bool comp(const Player& a, const Player& b) {
-    /*Auxiliar function to sort the players depending on their points*/
-    if(a.points == b.points) return a.price < b.price;
-    return a.points > b.points;
-}
 
-vp get_filtered_players(vp players, float avg_ratio){
-    /*Returns a filtered vector with the players whose ratio is over the threshold.
+const float A = 2;
+const float B = -1;
 
-    */
+bool comp(const Player& p1, const Player& p2){
+    if (p1.points == p2.points) return p1.price < p2.price; //if both are 0, the return below wouldn't work
+    if (p1.price == 0) return false; //p1 fake
+    if (p2.price == 0) return true; //p2 fake
 
-    vp filtered;
-    float threshold = avg_ratio*(1 - TOLERANCE);
-    for (Player p: players){
-        if (p.ratio >= threshold) filtered.push_back(p);
-    }
-    return filtered;
+    return pow(p1.points, A)*pow(p1.price, B) > pow(p2.points, A)*pow(p2.price, B); 
 }
 
 
-Solution get_solution(vp players, unordered_map <string, int> n, const int& T,
-                        const float& avg_ratio){
+Solution get_solution(vp& players, unordered_map <string, int> n, const int& T){
     /*
         Returns the lineup
 
         lineup: chosen players at the moment
         n: map with the amount of the needed players per position
-        cost: sum of the prices of the players currently in the lineup
-        points: sum of the points of the players currently in the lineup
-        max_points: max of points of all the generated lineups until that moment
-        unvisited: map with the amount of unvisited players per position
+        T: maximum total price
     */
     Solution solution = {{}, 0, 0};
     int i = 0;
-    //justificar q i mai sera mes gran que players.size()
+    //assert de que sempre podrem fer una solucio
 
-    players = get_filtered_players(players, avg_ratio); //filter players based on their ratio
-    sort(players.begin(), players.end(), comp); //sort decreasingly by points
+    sort(players.begin(), players.end(), comp);
 
     while (n["por"] > 0 or n["def"] > 0 or n["mig"] > 0 or n["dav"] > 0){
         Player player = players[i];
@@ -127,19 +114,9 @@ Solution get_solution(vp players, unordered_map <string, int> n, const int& T,
 }
 
 
-float get_ratio(int points, int price){
-    /*Returns the ratio given the points and the price. The higher the ratio the better*/
-    if (price == 0) return 1;
-    return float(points)/ price * 10000;
-}
-
-
-vp get_players_from_data(string data_file, const int& J, float& avg_ratio){
+vp get_players_from_data(string data_file, const int& J){
     /*Returns a vector of the players from data_file. Only contains the players whose price is 
     less than or equal to J.
-
-    Players with a bad points-price relationship are filtered.
-    Players with price = 0 are always kept.
     
     format DB "Name;Position;Price;club;points"
     */
@@ -147,7 +124,7 @@ vp get_players_from_data(string data_file, const int& J, float& avg_ratio){
     ifstream data(data_file);
     vp players;
     string line;
-    float sum_ratio = 0;
+    
 
     while (not data.eof()) {
         string name, club, position, aux2;
@@ -160,13 +137,10 @@ vp get_players_from_data(string data_file, const int& J, float& avg_ratio){
         data >> p;
         getline(data, aux2);
         if (price <= J){
-            float r = get_ratio(p, price);
-            if (price > 0) sum_ratio += r;
-            Player player = {name, position, price, club, p, r};
+            Player player = {name, position, price, club, p};
             players.push_back(player);      
         }
     }
-    avg_ratio = sum_ratio / int(players.size());
     data.close();
     return players;
 }
@@ -192,9 +166,8 @@ int main(int argc, char** argv){
     query.close();
     
     start = chrono::high_resolution_clock::now();
-    float avg_ratio;
-    vp PLAYERS = get_players_from_data(db_file, J, avg_ratio); //data filtered
+    vp PLAYERS = get_players_from_data(db_file, J);
     unordered_map <string, int> n = {{"por", 1}, {"def", N1}, {"mig", N2}, {"dav", N3}};
-    Solution solution = get_solution(PLAYERS, n, T, avg_ratio);
+    Solution solution = get_solution(PLAYERS, n, T);
     write_result(solution.lineup, solution.points, solution.price, output_file);
 }
