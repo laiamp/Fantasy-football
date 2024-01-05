@@ -15,15 +15,15 @@ using namespace std;
 struct Player{
     string name;
     string pos;
-    long long int price;
+    int price;
     string team;
-    long long int points;
+    int points;
 };
 
 struct Solution{
     vector<Player> lineup;
-    long long int price;
-    long long int points;
+    int price;
+    int points;
 
 };
 
@@ -43,7 +43,7 @@ unordered_map <string, vector<Player>> get_players_pos(const vp& lineup){
 }
 
 
-void write_result(const vp& lineup, const long long int& points, const long long int& price){
+void write_result(const vp& lineup, const int& points, const int& price){
     /*Writes the solution in the OUTPUT_FILE*/
 
     ofstream out(OUTPUT_FILE);
@@ -88,12 +88,12 @@ bool in_vector(const vp& v, const Player& P){
 }
 
 
-Solution pick_neighbor(const vp& players, Solution s, const long long int& available){
+Solution pick_neighbor(const vp& players, Solution s, const int& available){
     /*
     Returns a solution with a player of the lineup changed with a random player from the available ones
     which can fit in the lineup given an amount of money
     */
-    const long long int N = players.size();
+    const int N = players.size();
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     mt19937 gen(seed);
     uniform_int_distribution<> unif1(0, 10);    // Used to generate a lineup index
@@ -101,7 +101,7 @@ Solution pick_neighbor(const vp& players, Solution s, const long long int& avail
     int lineup_idx = unif1(gen), player_idx;
     string pos = s.lineup[lineup_idx].pos;  // Pick random player's position
     bool found = false;
-    long long int price_diff;
+    int price_diff;
     Player candidate; 
     while (!found){
         player_idx = unif2(gen);
@@ -120,7 +120,7 @@ Solution pick_neighbor(const vp& players, Solution s, const long long int& avail
 }
 
 
-Solution lineup_improvement(const vp& players, Solution lineup, long long int available){
+Solution lineup_improvement(const vp& players, Solution lineup, int available){
     /*Given a possible lineup, it improves it and returns it as a solution
     Implements a Simulated Annealing*/
     double T = 1e5, p;
@@ -148,7 +148,7 @@ Solution lineup_improvement(const vp& players, Solution lineup, long long int av
 }
 
 
-vp gen_candidate_list(const vp& players, unordered_map <string, int> n, const long long int& available, const int& alpha, const vector<Player>& banned){
+vp gen_candidate_list(const vp& players, unordered_map <string, int> n, const int& available, const int& alpha, const vector<Player>& banned){
     /*Generates a candidate list with the players that could fit in the lineup with a max of alpha candidates
     Prerequisite: players sorted by descending points*/
     vp candidates(0);
@@ -167,11 +167,11 @@ vp gen_candidate_list(const vp& players, unordered_map <string, int> n, const lo
 }
 
 
-Solution gen_arbitrary_lineup(const vp& players, unordered_map <string, int> n, const long long int& T){
+Solution gen_arbitrary_lineup(const vp& players, unordered_map <string, int> n, const int& T){
     /*Generates a pseudo-greedy lineup given an array of players, the number of players in each position and a maximum cost
     Returns the vector of players*/
     int alpha = 11, randIdx;    // Max number of candidate players
-    long long int available = T, price, points;
+    int available = T, price, points;
     vp candidates, lineup;
     Player candidate;
     vector<Player> banned;  // Players already in the lineup
@@ -194,7 +194,7 @@ Solution gen_arbitrary_lineup(const vp& players, unordered_map <string, int> n, 
 }
 
 
-Solution get_lineup(const vp& players, unordered_map <string, int> n, const long long int& T){
+Solution get_lineup(const vp& players, unordered_map <string, int> n, const int& T){
     /*Generates a random lineup and improves it. Returns it as a Solution*/
     Solution solution = gen_arbitrary_lineup(players, n, T);
     return lineup_improvement(players, solution, T-solution.price);
@@ -208,7 +208,7 @@ bool comp(const Player& a, const Player& b){
 }
 
 
-vp get_players_from_data(string data_file, const long long int& J){
+vp get_players_from_data(string data_file, const int& J){
     /*Returns a vector of the players from data_file. Only contains the players whose price is less than 
     or equal to J. 
 
@@ -221,7 +221,7 @@ vp get_players_from_data(string data_file, const long long int& J){
 
     while (not data.eof()) {
         string name, club, position, aux2;
-        long long int price; long long int p;
+        int price; int p;
         char aux;
         Player player;
         getline(data,name,';');    if (name == "") break;
@@ -251,7 +251,7 @@ int main(int argc, char** argv){
     
     OUTPUT_FILE = argv[3];
     ifstream query(argv[2]);
-    long long int J, T;
+    int J, T;
     int N1, N2, N3;
 
     query >> N1 >> N2 >> N3 >> T >> J;
@@ -263,7 +263,7 @@ int main(int argc, char** argv){
 
     const vp PLAYERS = get_players_from_data(argv[1], J);
 
-    long long int best_points = -1;
+    int best_points = -1;
     Solution solution;
     while(true){
         solution = get_lineup(PLAYERS, n, T);
