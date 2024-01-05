@@ -203,10 +203,10 @@ int main(int argc, char** argv){
     query.close();
     
     unordered_map <string, int> n = {{"por", 1}, {"def", N1}, {"mig", N2}, {"dav", N3}};
+    unordered_map <string, int> unvisited = {{"por", 0}, {"def", 0}, {"mig", 0}, {"dav", 0}};
 
     start = chrono::high_resolution_clock::now();
     
-    unordered_map <string, int> unvisited = {{"por", 0}, {"def", 0}, {"mig", 0}, {"dav", 0}};
     PLAYERS = get_players_from_data(argv[1], min_price, unvisited, J);
     sort(PLAYERS.begin(), PLAYERS.end(), prev);
 
