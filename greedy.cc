@@ -42,10 +42,10 @@ unordered_map <string, vp> get_players_pos(const vp& lineup){
 }
 
 
-void write_result(vp& lineup, const int& points, const int& price, const string& output_file){
+void write_result(vp& lineup, const int& points, const int& price){
     /*Writes the solution in the OUTPUT_FILE*/
 
-    ofstream out(output_file);
+    ofstream out(OUTPUT_FILE);
 
     unordered_map <string, vp> players_pos = get_players_pos(lineup);   
 
@@ -159,18 +159,16 @@ int main(int argc, char** argv){
         exit(1);
     }
 
-    string db_file = argv[1];
-    string query_file = argv[2];
-    string output_file = argv[3];   
+    OUTPUT_FILE = argv[3];   
 
-    ifstream query(query_file);
+    ifstream query(argv[2]);
     int N1, N2, N3, T, J;
     query >> N1 >> N2 >> N3 >> T >> J;
     query.close();
     
     start = chrono::high_resolution_clock::now();
-    vp players = get_DB_players(db_file, J);
+    vp players = get_DB_players(argv[1], J);
     unordered_map <string, int> n = {{"por", 1}, {"def", N1}, {"mig", N2}, {"dav", N3}};
     Solution solution = get_solution(players, n, T);
-    write_result(solution.lineup, solution.points, solution.price, output_file);
+    write_result(solution.lineup, solution.points, solution.price);
 }
