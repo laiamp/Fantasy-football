@@ -14,24 +14,30 @@ using namespace std;
 struct Player{
     string name;
     string pos;
-    long long int price;
+    int price;
     string team;
-    long long int points;
+    int points;
     float ratio;
 };
 
+struct Solution{
+    vector <Player> lineup;
+    int points;
+    int price;
+};
+
 using vp = vector <Player>;
-using vli = vector <long long int>;
+using vli = vector <int>;
 
 string OUTPUT_FILE;
 chrono::high_resolution_clock::time_point start;
-float THRESHOLD_RATIO = 0.5;
+float TOLERANCE = 0.25;
 
 
-unordered_map <string, vector<Player>> get_players_pos(const vp& lineup){
+unordered_map <string, vp> get_players_pos(const vp& lineup){
     /*Returns an unordered map whose keys are the positions and the values 
     are the players of the lineup in that position*/
-    unordered_map <string, vector<Player>> players_pos;
+    unordered_map <string, vp> players_pos;
     for (Player p: lineup){
         players_pos[p.pos].push_back(p);
     }
@@ -39,12 +45,12 @@ unordered_map <string, vector<Player>> get_players_pos(const vp& lineup){
 }
 
 
-void write_result(const vp& lineup, const long long int& points, const long long int& price){
+void write_result(const vp& lineup, const int& points, const int& price, const string& output_file){
     /*Writes the solution in the OUTPUT_FILE*/
 
-    ofstream out(OUTPUT_FILE);
+    ofstream out(output_file);
 
-    unordered_map <string, vector<Player>> players_pos = get_players_pos(lineup);   
+    unordered_map <string, vp> players_pos = get_players_pos(lineup);   
     vector <string> positions = {"por", "def", "mig", "dav"};
 
     chrono::high_resolution_clock::time_point end = chrono::high_resolution_clock::now();
@@ -68,8 +74,28 @@ void write_result(const vp& lineup, const long long int& points, const long long
     out.close();
 }
 
+bool comp(const Player& a, const Player& b) {
+    /*Auxiliar function to sort the players depending on their points*/
+    if(a.points == b.points) return a.price < b.price;
+    return a.points > b.points;
+}
 
-vp get_lineup(vp players, unordered_map <string, int> n, const long long int& T){
+vp get_filtered_players(vp players, float avg_ratio){
+    /*Returns a filtered vector with the players whose ratio is over the threshold.
+
+    */
+
+    vp filtered;
+    float threshold = avg_ratio*(1 - TOLERANCE);
+    for (Player p: players){
+        if (p.ratio >= threshold) filtered.push_back(p);
+    }
+    return filtered;
+}
+
+
+Solution get_solution(vp players, unordered_map <string, int> n, const int& T,
+                        const float& avg_ratio){
     /*
         Returns the lineup
 
@@ -78,44 +104,39 @@ vp get_lineup(vp players, unordered_map <string, int> n, const long long int& T)
         cost: sum of the prices of the players currently in the lineup
         points: sum of the points of the players currently in the lineup
         max_points: max of points of all the generated lineups until that moment
-        m_min_price: map with the minimum price of all players from the same position 
         unvisited: map with the amount of unvisited players per position
     */
-    vp lineup;
-    long long int total = T;
+    Solution solution = {{}, 0, 0};
     int i = 0;
     //justificar q i mai sera mes gran que players.size()
 
+    players = get_filtered_players(players, avg_ratio); //filter players based on their ratio
+    sort(players.begin(), players.end(), comp); //sort decreasingly by points
+
     while (n["por"] > 0 or n["def"] > 0 or n["mig"] > 0 or n["dav"] > 0){
-        if (n[players[i].pos] > 0 and total - players[i].price >= 0){
-            lineup.push_back(players[i]);
-            n[players[i].pos]--;
-            total -= players[i].price;
+        Player player = players[i];
+        if (n[player.pos] > 0 and solution.price + player.price <= T){
+            solution.lineup.push_back(player);
+            n[player.pos]--;
+            solution.price += player.price;
+            solution.points += player.points;
         }
         i++;
     }
-    return lineup;
-    
+    return solution;
 }
 
 
-bool comp(const Player& a, const Player& b) {
-    /*Auxiliar function to sort the players depending on their points*/
-    if(a.points == b.points) return a.price < b.price;
-    return a.points > b.points;
-}
-
-
-float get_ratio(long long int points, long long int price){
+float get_ratio(int points, int price){
     /*Returns the ratio given the points and the price. The higher the ratio the better*/
     if (price == 0) return 1;
-    return float(points)/ price * 100000;
+    return float(points)/ price * 10000;
 }
 
 
-vp get_players_from_data(string data_file, const long long int& J){
-    /*Returns a vector of the players from data_file. Only contains the players whose price is less than 
-    or equal to J. 
+vp get_players_from_data(string data_file, const int& J, float& avg_ratio){
+    /*Returns a vector of the players from data_file. Only contains the players whose price is 
+    less than or equal to J.
 
     Players with a bad points-price relationship are filtered.
     Players with price = 0 are always kept.
@@ -126,10 +147,11 @@ vp get_players_from_data(string data_file, const long long int& J){
     ifstream data(data_file);
     vp players;
     string line;
+    float sum_ratio = 0;
 
     while (not data.eof()) {
         string name, club, position, aux2;
-        long long int price; long long int p;
+        int price; int p;
         char aux;
         getline(data,name,';');    if (name == "") break;
         getline(data,position,';');
@@ -139,19 +161,14 @@ vp get_players_from_data(string data_file, const long long int& J){
         getline(data, aux2);
         if (price <= J){
             float r = get_ratio(p, price);
-            cout << r << endl;
-
-            if (r >= THRESHOLD_RATIO){
-                Player player = {name, position, price, club, p, r};
-                players.push_back(player);
-            }   
+            if (price > 0) sum_ratio += r;
+            Player player = {name, position, price, club, p, r};
+            players.push_back(player);      
         }
     }
-    //sort decreasingly by points
-    sort(players.begin(), players.end(), comp);
+    avg_ratio = sum_ratio / int(players.size());
     data.close();
     return players;
-
 }
 
 
@@ -165,31 +182,19 @@ int main(int argc, char** argv){
         cout << "Syntax: " << argv[0] << " data_base.txt query.txt output.txt" << endl;
         exit(1);
     }
-    
-    OUTPUT_FILE = argv[3];
+    string db_file = argv[1];
+    string query_file = argv[2];
+    string output_file = argv[3];   
 
-    unordered_map <string, long long int> m_min_price = {{"por", 999999999}, {"def", 999999999}, {"mig", 999999999}, {"dav", 999999999}};
-    
-    ifstream query(argv[2]);
-    long long int J, T;
-    int N1, N2, N3;
-
+    ifstream query(query_file);
+    int N1, N2, N3, T, J;
     query >> N1 >> N2 >> N3 >> T >> J;
     query.close();
     
-    unordered_map <string, int> n = {{"por", 1}, {"def", N1}, {"mig", N2}, {"dav", N3}};
     start = chrono::high_resolution_clock::now();
-
-    vp PLAYERS = get_players_from_data(argv[1], J);
-
-    vp lineup = get_lineup(PLAYERS, n, T);
-    long long int points = 0, price = 0;
-
-    for (int i = 0; i < 11; i++){
-        points += lineup[i].points;
-        price += lineup[i].price;
-        cout << lineup[i].ratio << endl;
-    }
-    
-    write_result(lineup, points, price);
+    float avg_ratio;
+    vp PLAYERS = get_players_from_data(db_file, J, avg_ratio); //data filtered
+    unordered_map <string, int> n = {{"por", 1}, {"def", N1}, {"mig", N2}, {"dav", N3}};
+    Solution solution = get_solution(PLAYERS, n, T, avg_ratio);
+    write_result(solution.lineup, solution.points, solution.price, output_file);
 }
