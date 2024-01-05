@@ -87,12 +87,12 @@ bool candidate(int i, unordered_map <string, int> n, const int & points, const i
     if (n[player.pos] == 0) return false;
     if (cost + player.price > T) return false;
 
-    int k = n["por"] + n["def"] + n["mig"] + n["dav"];
-    if (i + k >= int(PLAYERS.size())) return false;
+    int remaining = n["por"] + n["def"] + n["mig"] + n["dav"];
+    if (i + remaining > int(PLAYERS.size())) return false;
 
     //if with the current player and the next k-1 players we dont reach max_points, we discard the candidate
     int potential_points = points;
-    for (int j = i; j < i+k; j++){
+    for (int j = i; j < i + remaining; j++){
         potential_points += PLAYERS[j].points;
     }
     return potential_points > max_points;
