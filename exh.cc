@@ -95,10 +95,7 @@ bool candidate(int i, unordered_map <string, int> n, const int & points, const i
     for (int j = i; j < i+k; j++){
         potential_points += PLAYERS[j].points;
     }
-    if (potential_points <= max_points) return false;
-
-    //afegir condició relacionada amb el preu!!
-    return true; 
+    return potential_points > max_points;
 }
 
 
@@ -121,7 +118,7 @@ void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
     
     Player player = PLAYERS[i];
 
-    if (11 == int(lineup.size()) and n["por"] == 0 and n["def"] == 0 and n["mig"] == 0 and n["dav"] == 0){ // totes les posicions assignades
+    if (n["por"] == 0 and n["def"] == 0 and n["mig"] == 0 and n["dav"] == 0){ //could be used lineup.size() == 11 instead
         
         if (points > max_points){
             max_points = points;
@@ -179,9 +176,9 @@ vp get_players_from_data(string data_file, unordered_map <string, int>& min_pric
 
 }
 
-bool comp(const Player& a, const Player& b) {
+bool prev(const Player& a, const Player& b) {
     /*Auxiliar function to sort the players depending on their points*/
-    if(a.points == b.points) return a.price > b.price;
+    if(a.points == b.points) return a.price < b.price;
     return a.points > b.points;
 }
 
@@ -189,7 +186,8 @@ int main(int argc, char** argv){
     /*
     argv[1]: name DB file
     argv[2]: name query file 
-    argv[3]: name output file*/
+    argv[3]: name output file
+    */
 
     if (argc != 4) {
         cout << "Syntax: " << argv[0] << " data_base.txt query.txt output.txt" << endl;
@@ -201,18 +199,17 @@ int main(int argc, char** argv){
     unordered_map <string, int> m_min_price = {{"por", 999999999}, {"def", 999999999}, {"mig", 999999999}, {"dav", 999999999}};
     
     ifstream query(argv[2]);
-    int J;
-    int N1, N2, N3;
-
+    
+    int N1, N2, N3, J;
     query >> N1 >> N2 >> N3 >> T >> J;
     
     unordered_map <string, int> n = {{"por", 1}, {"def", N1}, {"mig", N2}, {"dav", N3}};
-    unordered_map <string, int> unvisited = {{"por", 0}, {"def", 0}, {"mig", 0}, {"dav", 0}};
 
     start = chrono::high_resolution_clock::now();
     
+    unordered_map <string, int> unvisited = {{"por", 0}, {"def", 0}, {"mig", 0}, {"dav", 0}};
     PLAYERS = get_players_from_data(argv[1], m_min_price, unvisited, J);
-    sort(PLAYERS.begin(), PLAYERS.end(), comp);
+    sort(PLAYERS.begin(), PLAYERS.end(), prev);
 
     vp lineup;
     int max_points = 0;
