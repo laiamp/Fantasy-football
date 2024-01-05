@@ -32,10 +32,10 @@ using vp = vector <Player>;
 string OUTPUT_FILE;
 chrono::high_resolution_clock::time_point start;
 
-unordered_map <string, vector<Player>> get_players_pos(const vp& lineup){
+unordered_map <string, vp> get_players_pos(const vp& lineup){
     /*Returns an unordered map whose keys are the positions and the values 
     are the players of the lineup in that position*/
-    unordered_map <string, vector<Player>> players_pos;
+    unordered_map <string, vp> players_pos;
     for (Player p: lineup){
         players_pos[p.pos].push_back(p);
     }
@@ -48,7 +48,7 @@ void write_result(const vp& lineup, const int& points, const int& price){
 
     ofstream out(OUTPUT_FILE);
 
-    unordered_map <string, vector<Player>> players_pos = get_players_pos(lineup);
+    unordered_map <string, vp> players_pos = get_players_pos(lineup);
 
     chrono::high_resolution_clock::time_point end = chrono::high_resolution_clock::now();
     chrono::duration<double> duration = end - start;
@@ -148,7 +148,7 @@ Solution lineup_improvement(const vp& players, Solution lineup, int available){
 }
 
 
-vp gen_candidate_list(const vp& players, unordered_map <string, int> n, const int& available, const int& alpha, const vector<Player>& banned){
+vp gen_candidate_list(const vp& players, unordered_map <string, int> n, const int& available, const int& alpha, const vp& banned){
     /*Generates a candidate list with the players that could fit in the lineup with a max of alpha candidates
     Prerequisite: players sorted by descending points*/
     vp candidates(0);
@@ -174,7 +174,7 @@ Solution gen_arbitrary_lineup(const vp& players, unordered_map <string, int> n, 
     int available = T, price, points;
     vp candidates, lineup;
     Player candidate;
-    vector<Player> banned;  // Players already in the lineup
+    vp banned;  // Players already in the lineup
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     mt19937 gen(seed);
     for(int i = 0; i < 11; i++){    // Chooses every player from the lineup
