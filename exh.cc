@@ -7,6 +7,7 @@
 #include <chrono>
 #include <cstring>
 #include <iomanip>
+#include <limits>
 
 using namespace std;
 
@@ -20,8 +21,6 @@ struct Player{
 
 
 using vp = vector <Player>;
-using vli = vector <int>;
-
 
 string OUTPUT_FILE;
 chrono::high_resolution_clock::time_point start;
@@ -66,15 +65,15 @@ void write_result(const vp& lineup, const int& points, const int& price){
     
     out << "Punts: " << points << endl;
     out << "Preu: " << price << endl;
-
     out.close();
 }
 
 
-bool candidate(int i, unordered_map <string, int> n, const int & points, const int& cost,
-                const int& max_points, const int& T){
-    /*Returns whether or not exists a promising solution picking the i-th player
-    
+bool new_possible_solutions(int i, int points, unordered_map <string, int> n, 
+                            int max_points, unordered_map <string, int> unvisited){
+    /*
+    Returns whether from the i-th player onwards a solution may exist or not.
+
     i: index of the current player from PLAYERS
     n: map with the amount of the needed players per position
     points: sum of the points of the players currently in the lineup
@@ -82,25 +81,22 @@ bool candidate(int i, unordered_map <string, int> n, const int & points, const i
     max_points: max of points of all the generated lineups until that moment
     */
 
-    Player player = PLAYERS[i];
-    if (n[player.pos] == 0) return false;
-    if (cost + player.price > T) return false;
-
     int remaining = n["por"] + n["def"] + n["mig"] + n["dav"];
-    if (i + remaining > int(PLAYERS.size())) return false;
 
-    //if with the current player and the next k-1 players we dont reach max_points, we discard the candidate
+    if (i + remaining > int(PLAYERS.size())) return false; //not enough players left
+    
+    if (n[PLAYERS[i].pos] > unvisited[PLAYERS[i].pos]) return false; //not enough players left of this position
+    
     int potential_points = points;
     for (int j = i; j < i + remaining; j++){
         potential_points += PLAYERS[j].points;
     }
-    return potential_points > max_points;
+    return potential_points >= max_points;
 }
 
 
 void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
-                        int points, int& max_points,  
-                        unordered_map<string, int>& m_min_price,
+                        int points, int& max_points,
                         unordered_map <string, int> unvisited, const int& T){
     /*
         Fills up the lineup vector
@@ -111,7 +107,6 @@ void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
         cost: sum of the prices of the players currently in the lineup
         points: sum of the points of the players currently in the lineup
         max_points: max of points of all the generated lineups until that moment
-        m_min_price: map with the minimum price of all players from the same position 
         unvisited: map with the amount of unvisited players per position
     */
     
@@ -122,29 +117,27 @@ void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
             write_result(lineup, points, cost);
         }
     }
-
-    else if (i < int(PLAYERS.size()) and n[player.pos] <= unvisited[player.pos]){
+    else if (new_possible_solutions(i, points, n, max_points, unvisited)){
         Player player = PLAYERS[i];
         unvisited[player.pos]--;
-            
-        if (candidate(i, n, points, cost, max_points)){
+        //promising(i, n, points, cost, max_points, T)
+        if (n[player.pos] > 0 and cost + player.price <= T){
             n[player.pos]--;
             lineup.push_back(player);
-            generate_lineup(i+1, lineup, n, cost + player.price, points + player.points, max_points, m_min_price, unvisited);
+            generate_lineup(i+1, lineup, n, cost + player.price, points + player.points, max_points, unvisited, T);
             n[player.pos]++;
             lineup.pop_back();
         }
-        generate_lineup(i+1, lineup, n, cost, points, max_points, m_min_price, unvisited);
+        generate_lineup(i+1, lineup, n, cost, points, max_points, unvisited, T);
     }
 }
 
 
-vp get_players_from_data(string data_file, unordered_map <string, int>& min_price, 
-                        unordered_map <string, int>& unvisited, const int& J){
+vp get_DB_players(string data_file, unordered_map <string, int>& unvisited, const int& J){
     /*Returns a vector of the players from data_file. Only contains the players whose price is less than 
-    or equal to J. The maps min_price and unvisited are modified.
+    or equal to J. The map unvisited is modified.
     
-    format BD "Name;Position;Price;club;points"
+    BD format "Name;Position;Price;club;points"
     */
 
     ifstream data(data_file);
@@ -164,7 +157,6 @@ vp get_players_from_data(string data_file, unordered_map <string, int>& min_pric
         if (price <= J){
             Player player = {name, position, price, club, p};
             players.push_back(player);
-            min_price[position] = min(price, min_price[position]);
             unvisited[position]++;
         }
     }
@@ -173,7 +165,7 @@ vp get_players_from_data(string data_file, unordered_map <string, int>& min_pric
 }
 
 
-bool prev(const Player& a, const Player& b) {
+bool comp(const Player& a, const Player& b) {
     /*Auxiliar function to sort the players depending on their points*/
     if(a.points == b.points) return a.price < b.price;
     return a.points > b.points;
@@ -194,8 +186,6 @@ int main(int argc, char** argv){
     
     OUTPUT_FILE = argv[3];
 
-    unordered_map <string, int> min_price = {{"por", 999999999}, {"def", 999999999}, {"mig", 999999999}, {"dav", 999999999}};
-    
     ifstream query(argv[2]);
     
     int N1, N2, N3, T, J;
@@ -207,11 +197,11 @@ int main(int argc, char** argv){
 
     start = chrono::high_resolution_clock::now();
     
-    PLAYERS = get_players_from_data(argv[1], min_price, unvisited, J);
-    sort(PLAYERS.begin(), PLAYERS.end(), prev);
-
+    PLAYERS = get_DB_players(argv[1], unvisited, J); //unvisited is modified
+    sort(PLAYERS.begin(), PLAYERS.end(), comp);
+    
     vp lineup;
     int max_points = 0;
     
-    generate_lineup(0, lineup, n, 0, 0, max_points, min_price, unvisited, T);
+    generate_lineup(0, lineup, n, 0, 0, max_points, unvisited, T);
 }
