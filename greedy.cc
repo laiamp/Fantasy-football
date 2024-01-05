@@ -125,7 +125,7 @@ el ratio pot tenir en compte la diferencia amb el total (penalitza els que tingu
 
 bool comp(const Player& a, const Player& b) {
     /*Auxiliar function to sort the players depending on their points*/
-    if(a.points == b.points) return a.price > b.price;
+    if(a.points == b.points) return a.price < b.price;
     return a.points > b.points;
 }
 
