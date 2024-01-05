@@ -26,11 +26,9 @@ struct Solution{
 };
 
 using vp = vector <Player>;
-using vli = vector <int>;
 
 string OUTPUT_FILE;
 chrono::high_resolution_clock::time_point start;
-float TOLERANCE = 0.25;
 
 
 unordered_map <string, vp> get_players_pos(const vp& lineup){
@@ -44,23 +42,23 @@ unordered_map <string, vp> get_players_pos(const vp& lineup){
 }
 
 
-void write_result(const vp& lineup, const int& points, const int& price, const string& output_file){
+void write_result(vp& lineup, const int& points, const int& price, const string& output_file){
     /*Writes the solution in the OUTPUT_FILE*/
 
     ofstream out(output_file);
 
     unordered_map <string, vp> players_pos = get_players_pos(lineup);   
-    vector <string> positions = {"por", "def", "mig", "dav"};
 
     chrono::high_resolution_clock::time_point end = chrono::high_resolution_clock::now();
     chrono::duration<double> duration = end - start;
     double time = duration.count();
     out << fixed << setprecision(1) << time << endl;
 
-    for (string pos: positions){
+    const vector <string> POSITIONS = {"por", "def", "mig", "dav"};
+
+    for (string pos: POSITIONS){
         string pos_upper = pos;
         transform(pos_upper.begin(), pos_upper.end(), pos_upper.begin(), ::toupper);
-        
         out << pos_upper << ": "; 
         for (int i = 0; i < int(players_pos[pos].size()); i++){
             out << (i == 0 ? "" : ";") << players_pos[pos][i].name;
@@ -74,10 +72,19 @@ void write_result(const vp& lineup, const int& points, const int& price, const s
 }
 
 
-const float A = 2;
-const float B = -1;
-
 bool comp(const Player& p1, const Player& p2){
+    /*
+    Auxiliar function to sort the players based on the players points and price
+
+    A and B are empirically adjusted coefficients.
+
+    const float A = 2;
+    const float B = -1;
+    */
+
+    const float A = 3.2;
+    const float B = -1;
+
     if (p1.points == p2.points) return p1.price < p2.price; //if both are 0, the return below wouldn't work
     if (p1.price == 0) return false; //p1 fake
     if (p2.price == 0) return true; //p2 fake
@@ -88,9 +95,9 @@ bool comp(const Player& p1, const Player& p2){
 
 Solution get_solution(vp& players, unordered_map <string, int> n, const int& T){
     /*
-        Returns the lineup
+        Returns a struct with the lineup, its points and its price
 
-        lineup: chosen players at the moment
+        players: vector with the players with a price <= J
         n: map with the amount of the needed players per position
         T: maximum total price
     */
@@ -114,30 +121,29 @@ Solution get_solution(vp& players, unordered_map <string, int> n, const int& T){
 }
 
 
-vp get_players_from_data(string data_file, const int& J){
-    /*Returns a vector of the players from data_file. Only contains the players whose price is 
-    less than or equal to J.
+vp get_DB_players(const string& db_file, const int& J){
+    /*Returns a vector of the players from db_file. Only contains the players 
+    whose price is less than or equal to J.
     
-    format DB "Name;Position;Price;club;points"
+    DB format: "Name;Position;Price;club;points"
     */
 
-    ifstream data(data_file);
+    ifstream data(db_file);
     vp players;
     string line;
-    
 
     while (not data.eof()) {
         string name, club, position, aux2;
-        int price; int p;
+        int price, points;
         char aux;
         getline(data,name,';');    if (name == "") break;
         getline(data,position,';');
         data >> price >> aux;
         getline(data,club,';');
-        data >> p;
+        data >> points;
         getline(data, aux2);
         if (price <= J){
-            Player player = {name, position, price, club, p};
+            Player player = {name, position, price, club, points};
             players.push_back(player);      
         }
     }
@@ -147,15 +153,12 @@ vp get_players_from_data(string data_file, const int& J){
 
 
 int main(int argc, char** argv){
-    /*
-    argv[1]: name DB file
-    argv[2]: name query file 
-    argv[3]: name output file*/
 
     if (argc != 4) {
         cout << "Syntax: " << argv[0] << " data_base.txt query.txt output.txt" << endl;
         exit(1);
     }
+
     string db_file = argv[1];
     string query_file = argv[2];
     string output_file = argv[3];   
@@ -166,8 +169,8 @@ int main(int argc, char** argv){
     query.close();
     
     start = chrono::high_resolution_clock::now();
-    vp PLAYERS = get_players_from_data(db_file, J);
+    vp players = get_DB_players(db_file, J);
     unordered_map <string, int> n = {{"por", 1}, {"def", N1}, {"mig", N2}, {"dav", N3}};
-    Solution solution = get_solution(PLAYERS, n, T);
+    Solution solution = get_solution(players, n, T);
     write_result(solution.lineup, solution.points, solution.price, output_file);
 }
