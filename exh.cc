@@ -147,7 +147,7 @@ void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
     else if (possible_complete_from_partial(i, sol.points, n, max_points, unvisited)){
         Player player = PLAYERS[i];
         unvisited[player.pos]--;
-        //cout << lower_bound_price(sol.price, player, n, min_price) << " T " << T << endl;
+        
         if (n[player.pos] > 0 and lower_bound_price(sol.price, player, n, min_price) <= T){
             n[player.pos]--;
             sol.lineup.push_back(player);
