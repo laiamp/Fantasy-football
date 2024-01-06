@@ -209,7 +209,7 @@ bool comp(const Player& a, const Player& b){
 }
 
 
-vp get_players_from_data(string data_file, const int& J){
+vp get_DB_players(string data_file, const int& J){
     /*Returns a vector of the players from data_file. Only contains the players whose price is less than 
     or equal to J. 
 
@@ -252,17 +252,15 @@ int main(int argc, char** argv){
     
     OUTPUT_FILE = argv[3];
     ifstream query(argv[2]);
-    int J, T;
-    int N1, N2, N3;
-
-    query >> N1 >> N2 >> N3 >> T >> J;
     
+    int N1, N2, N3, T, J;
+    query >> N1 >> N2 >> N3 >> T >> J;
     query.close();
     
     unordered_map <string, int> n = {{"por", 1}, {"def", N1}, {"mig", N2}, {"dav", N3}};
     start = chrono::high_resolution_clock::now();
 
-    const vp PLAYERS = get_players_from_data(argv[1], J);
+    const vp PLAYERS = get_DB_players(argv[1], J);
 
     int best_points = -1;
     Solution solution;
