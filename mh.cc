@@ -23,7 +23,7 @@ struct Player{
 struct Solution{
     vector<Player> lineup;
     int price;
-    int points
+    int points;
 };
 
 using vp = vector <Player>;
