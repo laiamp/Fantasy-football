@@ -44,7 +44,7 @@ unordered_map <string, vp> get_players_pos(const vp& lineup){
 
 void write_result(const Solution& solution){
     /*Writes the lineup, its points and its price in the OUTPUT_FILE*/
-
+    
     ofstream out(OUTPUT_FILE);
 
     unordered_map <string, vp> players_pos = get_players_pos(solution.lineup);   
@@ -96,7 +96,7 @@ bool new_possible_solutions(int i, int points, unordered_map <string, int> n,
     for (int j = i; j < i + remaining; j++){
         potential_points += PLAYERS[j].points;
     }
-    return potential_points >= max_points;
+    return potential_points > max_points;
 }
 
 
