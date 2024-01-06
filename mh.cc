@@ -129,7 +129,8 @@ Solution lineup_improvement(const vp& players, Solution lineup, int money_availa
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     mt19937 gen(seed);
     uniform_real_distribution<> unif(0.0, 1.0); // Used to generate a random p to test
-    int it = 0, maxIt = 100;
+    const int maxIt = 100;
+    int it = 0;
     while(it < maxIt){  // We stablish a limit of 100 iterations without changing the candidate lineup
         s = pick_neighbor(players, lineup, money_available);
         p = exp(-double(lineup.points - s.points)/T);   // p computed with the Boltzmann distribution
@@ -171,20 +172,20 @@ Solution gen_arbitrary_lineup(const vp& players, unordered_map <string, int> n, 
     /*Generates a pseudo-greedy lineup given an array of players, the number of players in each position and a maximum cost
     Returns the vector of players*/
     const int ALPHA = 11; // Max number of candidate players
-    int available = T, price = 0, points = 0, randIdx;
+    int money_available = T, price = 0, points = 0, randIdx;
     vp candidates, lineup;
     Player candidate;
     vp banned;  // Players already in the lineup
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     mt19937 gen(seed);
     for(int i = 0; i < 11; i++){    // Chooses every player from the lineup
-        candidates = gen_candidate_list(players, n, available, ALPHA, banned);
+        candidates = gen_candidate_list(players, n, money_available, ALPHA, banned);
         uniform_int_distribution<> unif(0, candidates.size() - 1);  // To generate a random candidate position
         randIdx = unif(gen);
         candidate = candidates[randIdx];
         lineup.push_back(candidate);
         banned.push_back(candidate);
-        available -= candidate.price;
+        money_available -= candidate.price;
         price += candidate.price;
         points += candidate.points;
         n[candidate.pos]--;
