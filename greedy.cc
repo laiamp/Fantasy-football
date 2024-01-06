@@ -98,7 +98,7 @@ Solution get_solution(vp& players, unordered_map <string, int> n, const int& T){
     */
     
     vp lineup;
-    int i = 0, price, points;
+    int i = 0, price = 0, points = 0;
 
     sort(players.begin(), players.end(), comp);
 
