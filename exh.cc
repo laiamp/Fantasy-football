@@ -117,7 +117,7 @@ void gen_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
         unvisited: map with the amount of unvisited players per position
     */
     
-    if (n["por"] == 0 and n["def"] == 0 and n["mig"] == 0 and n["dav"] == 0){   // could be used lineup.size() == 11 instead
+    if (n["por"] == 0 and n["def"] == 0 and n["mig"] == 0 and n["dav"] == 0){
         
         if (points > max_points){
             max_points = points;
@@ -142,7 +142,8 @@ void gen_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
 
 vp get_DB_players(string data_file, unordered_map <string, int>& unvisited, const int& J){
     /*Returns a vector of the players from data_file. Only contains the players whose price is less than 
-    or equal to J. The map unvisited is modified.
+    or equal to J. The map unvisited is modified, includes the information of how many players of each position 
+    exist in the dataset.
     
     BD format "Name;Position;Price;club;points"
     */
