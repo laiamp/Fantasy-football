@@ -137,7 +137,7 @@ Solution lineup_improvement(const vp& players, Solution lineup, int available){
             available -= (s.price-lineup.price);
             lineup = s;
             it = 0;
-        } else  it += 1;
+        } else  it++;
 
         if (lineup.points > best.points)    best = lineup;  // Improvement
 
@@ -160,7 +160,7 @@ vp gen_candidate_list(const vp& players, unordered_map <string, int> n, const in
         if(player.price <= available && n[player.pos] > 0 && !in_vector(banned, player)){
             candidates.push_back(player);
         }
-        i += 1;
+        i++;
     }
 
     return candidates;
@@ -187,7 +187,7 @@ Solution gen_arbitrary_lineup(const vp& players, unordered_map <string, int> n, 
         available -= candidate.price;
         price += candidate.price;
         points += candidate.points;
-        n[candidate.pos] -= 1;
+        n[candidate.pos]--;
     }
 
     return {lineup, price, points};
