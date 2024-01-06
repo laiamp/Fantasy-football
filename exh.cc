@@ -129,14 +129,14 @@ void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
 
         if (n[player.pos] > 0 and sol.price + player.price <= T){
             n[player.pos]--;
-            lineup.push_back(player);
+            sol.lineup.push_back(player);
             sol.price += player.price;
             sol.points += player.points;
             gen_solution(i+1, sol, n, max_points, unvisited, T);
             sol.price -= player.price;
             sol.points -= player.points;
             n[player.pos]++;
-            lineup.pop_back();
+            sol.lineup.pop_back();
         }
         gen_solution(i+1, sol, n, max_points, unvisited, T);
     }
@@ -213,5 +213,5 @@ int main(int argc, char** argv){
     
     Solution sol = {{}, 0, 0};
     int max_points = 0;
-    gen_solution(0, sol, n, 0, 0, max_points, unvisited, T);
+    gen_solution(0, sol, n, max_points, unvisited, T);
 }
