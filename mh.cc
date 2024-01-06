@@ -88,7 +88,7 @@ bool in_vector(const vp& v, const Player& P){
 }
 
 
-Solution pick_neighbor(const vp& players, Solution s, const int& available){
+Solution pick_neighbor(const vp& players, Solution s, const int& money_available){
     /*
     Returns a solution with a player of the lineup changed with a random player from the available ones
     which can fit in the lineup given an amount of money
@@ -107,7 +107,7 @@ Solution pick_neighbor(const vp& players, Solution s, const int& available){
         player_idx = unif2(gen);
         candidate = players[player_idx];
         price_diff = candidate.price - s.lineup[lineup_idx].price;
-        if (pos == candidate.pos && price_diff <= available && !in_vector(s.lineup, candidate)){
+        if (pos == candidate.pos && price_diff <= money_available && !in_vector(s.lineup, candidate)){
             found = true;
             // Update new solution's parameters
             s.points += (candidate.points - s.lineup[lineup_idx].points);
@@ -120,7 +120,7 @@ Solution pick_neighbor(const vp& players, Solution s, const int& available){
 }
 
 
-Solution lineup_improvement(const vp& players, Solution lineup, int available){
+Solution lineup_improvement(const vp& players, Solution lineup, int money_available){
     /*Given a possible lineup, it improves it and returns it as a solution
     Implements a Simulated Annealing*/
     double T = 1e5, p;
@@ -131,10 +131,10 @@ Solution lineup_improvement(const vp& players, Solution lineup, int available){
     uniform_real_distribution<> unif(0.0, 1.0); // Used to generate a random p to test
     int it = 0, maxIt = 100;
     while(it < maxIt){  // We stablish a limit of 100 iterations without changing the candidate lineup
-        s = pick_neighbor(players, lineup, available);
+        s = pick_neighbor(players, lineup, money_available);
         p = exp(-double(lineup.points - s.points)/T);   // p computed with the Boltzmann distribution
         if (s.points > lineup.points || p > unif(gen)){ // Better solution or random pick
-            available -= (s.price-lineup.price);
+            money_available -= (s.price-lineup.price);
             lineup = s;
             it = 0;
         } else  it++;
@@ -148,16 +148,16 @@ Solution lineup_improvement(const vp& players, Solution lineup, int available){
 }
 
 
-vp gen_candidate_list(const vp& players, unordered_map <string, int> n, const int& available, const int& alpha, const vp& banned){
+vp gen_candidate_list(const vp& players, unordered_map <string, int> n, const int& money_available, const int& ALPHA, const vp& banned){
     /*Generates a candidate list with the players that could fit in the lineup with a max of alpha candidates
     Prerequisite: players sorted by descending points*/
     vp candidates(0);
     int i = 0;
     Player player;
     int N = players.size();
-    while(int(candidates.size()) < alpha and i < N){
+    while(int(candidates.size()) < ALPHA and i < N){
         player = players[i];
-        if(player.price <= available && n[player.pos] > 0 && !in_vector(banned, player)){
+        if(player.price <= money_available && n[player.pos] > 0 && !in_vector(banned, player)){
             candidates.push_back(player);
         }
         i++;
@@ -170,15 +170,15 @@ vp gen_candidate_list(const vp& players, unordered_map <string, int> n, const in
 Solution gen_arbitrary_lineup(const vp& players, unordered_map <string, int> n, const int& T){
     /*Generates a pseudo-greedy lineup given an array of players, the number of players in each position and a maximum cost
     Returns the vector of players*/
-    int alpha = 11, randIdx;    // Max number of candidate players
-    int available = T, price, points;
+    const int ALPHA = 11; // Max number of candidate players
+    int available = T, price, points, randIdx;
     vp candidates, lineup;
     Player candidate;
     vp banned;  // Players already in the lineup
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     mt19937 gen(seed);
     for(int i = 0; i < 11; i++){    // Chooses every player from the lineup
-        candidates = gen_candidate_list(players, n, available, alpha, banned);
+        candidates = gen_candidate_list(players, n, available, ALPHA, banned);
         uniform_int_distribution<> unif(0, candidates.size() - 1);  // To generate a random candidate position
         randIdx = unif(gen);
         candidate = candidates[randIdx];
