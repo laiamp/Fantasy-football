@@ -100,7 +100,7 @@ bool new_possible_solutions(int i, int points, unordered_map <string, int> n,
 }
 
 
-void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
+void gen_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
                         int points, int& max_points,
                         unordered_map <string, int> unvisited, const int& T){
     /*
@@ -131,11 +131,11 @@ void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
         if (n[player.pos] > 0 and cost + player.price <= T){
             n[player.pos]--;
             lineup.push_back(player);
-            generate_lineup(i+1, lineup, n, cost + player.price, points + player.points, max_points, unvisited, T);
+            gen_lineup(i+1, lineup, n, cost + player.price, points + player.points, max_points, unvisited, T);
             n[player.pos]++;
             lineup.pop_back();
         }
-        generate_lineup(i+1, lineup, n, cost, points, max_points, unvisited, T);
+        gen_lineup(i+1, lineup, n, cost, points, max_points, unvisited, T);
     }
 }
 
@@ -210,5 +210,5 @@ int main(int argc, char** argv){
     vp lineup;
     int max_points = 0;
     
-    generate_lineup(0, lineup, n, 0, 0, max_points, unvisited, T);
+    gen_lineup(0, lineup, n, 0, 0, max_points, unvisited, T);
 }
