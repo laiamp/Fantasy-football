@@ -96,22 +96,23 @@ Solution get_solution(vp& players, unordered_map <string, int> n, const int& T){
         n: map with the amount of the needed players per position
         T: maximum total price
     */
-    Solution solution = {{}, 0, 0};
-    int i = 0;
+    
+    vp lineup;
+    int i = 0, price, points;
 
     sort(players.begin(), players.end(), comp);
 
     while (n["por"] > 0 or n["def"] > 0 or n["mig"] > 0 or n["dav"] > 0){
         Player player = players[i];
-        if (n[player.pos] > 0 and solution.price + player.price <= T){
-            solution.lineup.push_back(player);
+        if (n[player.pos] > 0 and price + player.price <= T){
+            lineup.push_back(player);
             n[player.pos]--;
-            solution.price += player.price;
-            solution.points += player.points;
+            price += player.price;
+            points += player.points;
         }
         i++;
     }
-    return solution;
+    return {lineup, points, price};
 }
 
 
