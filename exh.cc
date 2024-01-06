@@ -18,6 +18,12 @@ struct Player{
     int points;
 };
 
+struct Solution{
+    vector <Player> lineup;
+    int points;
+    int price;
+}
+
 using vp = vector <Player>;
 
 string OUTPUT_FILE;
@@ -36,13 +42,13 @@ unordered_map <string, vp> get_players_pos(const vp& lineup){
 }
 
 
-void write_result(const vp& lineup, const int& points, const int& price){
+void write_result(const Solution& solution){
     /*Writes the lineup, its points and its price in the OUTPUT_FILE*/
 
 
     ofstream out(OUTPUT_FILE);
 
-    unordered_map <string, vp> players_pos = get_players_pos(lineup);   
+    unordered_map <string, vp> players_pos = get_players_pos(solution.lineup);   
     vector <string> positions = {"por", "def", "mig", "dav"};
 
     chrono::high_resolution_clock::time_point end = chrono::high_resolution_clock::now();
@@ -61,8 +67,8 @@ void write_result(const vp& lineup, const int& points, const int& price){
         out << endl;
     }
     
-    out << "Punts: " << points << endl;
-    out << "Preu: " << price << endl;
+    out << "Punts: " << solution.points << endl;
+    out << "Preu: " << solution.price << endl;
     out.close();
 }
 
@@ -71,6 +77,8 @@ bool new_possible_solutions(int i, int points, unordered_map <string, int> n,
                             int max_points, unordered_map <string, int> unvisited){
     /*
     Returns whether from the i-th player onwards a solution may exist or not.
+
+    Prerequisite: PLAYERS is sorted decreasingly by points.
 
     i: index of the current player from PLAYERS
     n: map with the amount of the needed players per position
@@ -97,7 +105,9 @@ void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
                         int points, int& max_points,
                         unordered_map <string, int> unvisited, const int& T){
     /*
-        Fills up the lineup vector
+        Fills up the lineup vector.
+
+        Prerequisite: PLAYERS is sorted decreasingly by points.
 
         i: index of the current player from PLAYERS
         lineup: chosen players at the moment
@@ -112,7 +122,7 @@ void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
         
         if (points > max_points){
             max_points = points;
-            write_result(lineup, points, cost);
+            write_result({lineup, points, cost});
         }
     }
     else if (new_possible_solutions(i, points, n, max_points, unvisited)){
@@ -195,7 +205,7 @@ int main(int argc, char** argv){
 
     start = chrono::high_resolution_clock::now();
     
-    PLAYERS = get_DB_players(argv[1], unvisited, J); //unvisited is modified
+    PLAYERS = get_DB_players(argv[1], unvisited, J); // unvisited is modified
     sort(PLAYERS.begin(), PLAYERS.end(), comp);
     
     vp lineup;
