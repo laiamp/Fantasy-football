@@ -171,7 +171,7 @@ Solution gen_arbitrary_lineup(const vp& players, unordered_map <string, int> n, 
     /*Generates a pseudo-greedy lineup given an array of players, the number of players in each position and a maximum cost
     Returns the vector of players*/
     const int ALPHA = 11; // Max number of candidate players
-    int available = T, price, points, randIdx;
+    int available = T, price = 0, points = 0, randIdx;
     vp candidates, lineup;
     Player candidate;
     vp banned;  // Players already in the lineup
