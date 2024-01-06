@@ -43,7 +43,8 @@ unordered_map <string, vp> get_players_pos(const vp& lineup){
 
 
 void write_solution(const Solution& sol){
-    /*Writes the solution in the OUTPUT_FILE*/
+    /*Writes the execution time, the players of each position of the lineup,
+    its points and its price in the OUTPUT_FILE*/
 
     ofstream out(OUTPUT_FILE);
 
@@ -77,7 +78,7 @@ bool new_possible_solutions(int i, int points, unordered_map <string, int> n,
     /*
     Returns whether from the i-th player onwards a solution may exist or not.
 
-    Prerequisite: PLAYERS is sorted decreasingly by points.
+    Prerequisite: PLAYERS is sorted descending by points.
 
     i: index of the current player from PLAYERS
     n: map with the amount of the needed players per position
@@ -103,15 +104,14 @@ bool new_possible_solutions(int i, int points, unordered_map <string, int> n,
 void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
                 int& max_points, unordered_map <string, int> unvisited, const int& T){
     /*
-        Fills up the lineup vector.
+        Fills up the lineup vector of sol and computes its points and price.
+        The target is to maximize max_points while meeting the constraints given.
 
         Prerequisite: PLAYERS is sorted decreasingly by points.
 
         i: index of the current player from PLAYERS
         sol: solution being generated at the moment. Contains lineup vector, points int and price int
         n: map with the amount of the needed players per position
-        cost: sum of the prices of the players currently in the lineup
-        points: sum of the points of the players currently in the lineup
         max_points: max of points of all the generated lineups until that moment
         unvisited: map with the amount of unvisited players per position
     */
@@ -145,10 +145,10 @@ void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
 
 vp get_DB_players(string data_file, unordered_map <string, int>& unvisited, const int& J){
     /*Returns a vector of the players from data_file. Only contains the players whose price is less than 
-    or equal to J. The map unvisited is modified, includes the information of how many players of each position 
-    exist in the dataset.
+    or equal to J. The map unvisited is modified, so that includes the information of how many players of 
+    each position exist in the dataset without surpassing J.
     
-    BD format "Name;Position;Price;club;points"
+    DB format "Name;Position;Price;club;points"
     */
 
     ifstream data(data_file);
