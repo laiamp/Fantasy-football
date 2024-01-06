@@ -7,6 +7,7 @@
 #include <chrono>
 #include <cstring>
 #include <iomanip>
+#include <limits>
 
 using namespace std;
 
@@ -106,7 +107,8 @@ bool possible_complete_from_partial(int i, int points, unordered_map <string, in
 
 
 void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
-                  int& max_points, unordered_map <string, int> unvisited, const int& T){
+                  int& max_points, unordered_map <string, int> unvisited, 
+                  unordered_map <string, int> min_price, const int& T){
     /*
         Fills up the lineup vector of sol and computes its points and price.
         The target is to maximize max_points while meeting the constraints given.
@@ -118,6 +120,7 @@ void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
         n: map with the amount of the needed players per position
         max_points: max of points of all the generated lineups until that moment
         unvisited: map with the amount of unvisited players per position
+        min_price: minimum price of a player of that position
     */
     
     if (n["por"] == 0 and n["def"] == 0 and n["mig"] == 0 and n["dav"] == 0){
@@ -131,23 +134,24 @@ void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
         Player player = PLAYERS[i];
         unvisited[player.pos]--;
 
-        if (n[player.pos] > 0 and sol.price + player.price <= T){
+        if (n[player.pos] > 0 and sol.price + player.price + n["por"]*min_price["por"] + n["def"]*min_price["def"] + n["mig"]*min_price["mig"] + n["dav"]*min_price["dav"] - min_price[player.pos] <= T){
             n[player.pos]--;
             sol.lineup.push_back(player);
             sol.price += player.price;
             sol.points += player.points;
-            gen_solution(i+1, sol, n, max_points, unvisited, T);
+            gen_solution(i+1, sol, n, max_points, unvisited, min_price, T);
             sol.price -= player.price;
             sol.points -= player.points;
             n[player.pos]++;
             sol.lineup.pop_back();
         }
-        gen_solution(i+1, sol, n, max_points, unvisited, T);
+        gen_solution(i+1, sol, n, max_points, unvisited, min_price, T);
     }
 }
 
 
-vp get_DB_players(string data_file, unordered_map <string, int>& unvisited, const int& J){
+vp get_DB_players(string data_file, unordered_map <string, int>& unvisited,
+                  unordered_map <string, int>& min_price, const int& J){
     /*
     Returns a vector of the players from data_file. Only contains the players whose price is less than 
     or equal to J. The map unvisited is modified, so that includes the information of how many players of 
@@ -174,6 +178,7 @@ vp get_DB_players(string data_file, unordered_map <string, int>& unvisited, cons
             Player player = {name, position, price, club, p};
             players.push_back(player);
             unvisited[position]++;
+            min_price[position] = min(min_price[position], price);
         }
     }
     data.close();
@@ -210,13 +215,18 @@ int main(int argc, char** argv){
     
     unordered_map <string, int> n = {{"por", 1}, {"def", N1}, {"mig", N2}, {"dav", N3}};
     unordered_map <string, int> unvisited = {{"por", 0}, {"def", 0}, {"mig", 0}, {"dav", 0}};
+    unordered_map <string, int> min_price = {{"por", numeric_limits<int>::max()},
+                                                {"def", numeric_limits<int>::max()},
+                                                {"mig", numeric_limits<int>::max()},
+                                                {"dav", numeric_limits<int>::max()}
+                                                };
 
     start = chrono::high_resolution_clock::now();
     
-    PLAYERS = get_DB_players(argv[1], unvisited, J);    // unvisited is modified
+    PLAYERS = get_DB_players(argv[1], unvisited, min_price, J);    // unvisited is modified
     sort(PLAYERS.begin(), PLAYERS.end(), comp);
     
     Solution sol = {{}, 0, 0};
     int max_points = 0;
-    gen_solution(0, sol, n, max_points, unvisited, T);
+    gen_solution(0, sol, n, max_points, unvisited, min_price, T);
 }
