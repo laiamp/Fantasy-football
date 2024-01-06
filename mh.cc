@@ -208,7 +208,7 @@ Solution gen_arbitrary_lineup(const vp& players, unordered_map <string, int> n, 
 }
 
 
-Solution get_lineup(const vp& players, unordered_map <string, int> n, const int& T){
+Solution get_solution(const vp& players, unordered_map <string, int> n, const int& T){
     /*
     Generates a random lineup and improves it. Returns it as a Solution
     */
@@ -280,7 +280,7 @@ int main(int argc, char** argv){
     int best_points = -1;
     Solution solution;
     while(true){
-        solution = get_lineup(PLAYERS, n, T);
+        solution = get_solution(PLAYERS, n, T);
         if (solution.points > best_points){
             write_solution(solution);
             best_points = solution.points;
