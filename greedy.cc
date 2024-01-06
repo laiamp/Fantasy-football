@@ -85,9 +85,9 @@ bool comp(const Player& p1, const Player& p2){
     const float A = 3.2;
     const float B = 1;
 
-    if (p1.points == p2.points) return p1.price < p2.price;    // if both are 0, the return below wouldn't work
+    if (p1.points == p2.points) return p1.price < p2.price;
     if (p1.price == 0) return false;    // p1 fake
-    if (p2.price == 0) return true;    // p2 fake
+    if (p2.price == 0) return true;    // p2 fake and p1 not fake
 
     return pow(p1.points, A)/pow(p1.price, B) > pow(p2.points, A)/pow(p2.price, B); 
 }
