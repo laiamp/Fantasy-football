@@ -171,7 +171,7 @@ vp gen_candidate_list(const vp& players, unordered_map <string, int> n, const in
 Solution gen_arbitrary_lineup(const vp& players, unordered_map <string, int> n, const int& T){
     /*Generates a pseudo-greedy lineup given an array of players, the number of players in each position and a maximum cost
     Returns the vector of players*/
-    const int ALPHA = 11; // Max number of candidate players
+    const int ALPHA = 20; // Max number of candidate players
     int money_available = T, price = 0, points = 0, randIdx;
     vp candidates, lineup;
     Player candidate;
