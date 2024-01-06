@@ -41,7 +41,7 @@ unordered_map <string, vp> get_players_pos(const vp& lineup){
 }
 
 
-void write_result(vp& lineup, const int& points, const int& price){
+void write_result(const vp& lineup, const int& points, const int& price){
     /*Writes the solution in the OUTPUT_FILE*/
 
     ofstream out(OUTPUT_FILE);
