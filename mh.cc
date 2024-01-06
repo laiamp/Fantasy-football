@@ -43,7 +43,7 @@ unordered_map <string, vp> get_players_pos(const vp& lineup){
 }
 
 
-void write_result(const Solution& sol){
+void write_solution(const Solution& sol){
     /*Writes the solution in the OUTPUT_FILE*/
 
     ofstream out(OUTPUT_FILE);
@@ -266,7 +266,7 @@ int main(int argc, char** argv){
     while(true){
         solution = get_lineup(PLAYERS, n, T);
         if (solution.points > best_points){
-            write_result(solution);
+            write_solution(solution);
             best_points = solution.points;
         }
     }

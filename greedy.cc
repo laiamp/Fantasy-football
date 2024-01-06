@@ -41,7 +41,7 @@ unordered_map <string, vp> get_players_pos(const vp& lineup){
 }
 
 
-void write_result(const Solution& sol){
+void write_solution(const Solution& sol){
     /*Writes the solution in the OUTPUT_FILE*/
 
     ofstream out(OUTPUT_FILE);
@@ -165,5 +165,5 @@ int main(int argc, char** argv){
     vp players = get_DB_players(argv[1], J);
     unordered_map <string, int> n = {{"por", 1}, {"def", N1}, {"mig", N2}, {"dav", N3}};
     Solution solution = get_solution(players, n, T);
-    write_result(solution);
+    write_solution(solution);
 }

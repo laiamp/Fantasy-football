@@ -42,7 +42,7 @@ unordered_map <string, vp> get_players_pos(const vp& lineup){
 }
 
 
-void write_result(const Solution& sol){
+void write_solution(const Solution& sol){
     /*Writes the solution in the OUTPUT_FILE*/
 
     ofstream out(OUTPUT_FILE);
@@ -120,7 +120,7 @@ void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
         
         if (sol.points > max_points){
             max_points = sol.points;
-            write_result(sol);
+            write_solution(sol);
         }
     }
     else if (new_possible_solutions(i, sol.points, n, max_points, unvisited)){
