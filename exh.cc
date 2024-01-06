@@ -73,7 +73,7 @@ void write_solution(const Solution& sol){
 }
 
 
-bool may_exist_solution(int i, int points, unordered_map <string, int> n, 
+bool possible_complete_from_partial(int i, int points, unordered_map <string, int> n, 
                             int max_points, unordered_map <string, int> unvisited){
     /*
     Returns whether from the i-th player onwards a solution may exist or not.
@@ -123,7 +123,7 @@ void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
             write_solution(sol);
         }
     }
-    else if (may_exist_solution(i, sol.points, n, max_points, unvisited)){
+    else if (possible_complete_from_partial(i, sol.points, n, max_points, unvisited)){
         Player player = PLAYERS[i];
         unvisited[player.pos]--;
 
