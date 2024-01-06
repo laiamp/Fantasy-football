@@ -45,7 +45,6 @@ unordered_map <string, vp> get_players_pos(const vp& lineup){
 void write_result(const Solution& solution){
     /*Writes the lineup, its points and its price in the OUTPUT_FILE*/
 
-
     ofstream out(OUTPUT_FILE);
 
     unordered_map <string, vp> players_pos = get_players_pos(solution.lineup);   
@@ -89,9 +88,9 @@ bool new_possible_solutions(int i, int points, unordered_map <string, int> n,
 
     int remaining = n["por"] + n["def"] + n["mig"] + n["dav"];
 
-    if (i + remaining > int(PLAYERS.size())) return false; //not enough players left
+    if (i + remaining > int(PLAYERS.size())) return false;  // not enough players left
     
-    if (n[PLAYERS[i].pos] > unvisited[PLAYERS[i].pos]) return false; //not enough players left of this position
+    if (n[PLAYERS[i].pos] > unvisited[PLAYERS[i].pos]) return false;    // not enough players left of this position
     
     int potential_points = points;
     for (int j = i; j < i + remaining; j++){
@@ -118,7 +117,7 @@ void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
         unvisited: map with the amount of unvisited players per position
     */
     
-    if (n["por"] == 0 and n["def"] == 0 and n["mig"] == 0 and n["dav"] == 0){ //could be used lineup.size() == 11 instead
+    if (n["por"] == 0 and n["def"] == 0 and n["mig"] == 0 and n["dav"] == 0){   // could be used lineup.size() == 11 instead
         
         if (points > max_points){
             max_points = points;
@@ -128,7 +127,7 @@ void generate_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
     else if (new_possible_solutions(i, points, n, max_points, unvisited)){
         Player player = PLAYERS[i];
         unvisited[player.pos]--;
-        //promising(i, n, points, cost, max_points, T)
+
         if (n[player.pos] > 0 and cost + player.price <= T){
             n[player.pos]--;
             lineup.push_back(player);
@@ -205,7 +204,7 @@ int main(int argc, char** argv){
 
     start = chrono::high_resolution_clock::now();
     
-    PLAYERS = get_DB_players(argv[1], unvisited, J); // unvisited is modified
+    PLAYERS = get_DB_players(argv[1], unvisited, J);    // unvisited is modified
     sort(PLAYERS.begin(), PLAYERS.end(), comp);
     
     vp lineup;
