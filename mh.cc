@@ -130,13 +130,13 @@ Solution lineup_improvement(const vp& players, Solution lineup, int money_availa
     Implements a Simulated Annealing
     */
     
-    double T = 1e5, p;
-    const double alpha = 0.99; 
+    double T = 1e5, p;  // Empiric
+    const double alpha = 0.99;  // Empiric
     Solution best = lineup, s;
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     mt19937 gen(seed);
     uniform_real_distribution<> unif(0.0, 1.0); // Used to generate a random p to test
-    const int maxIt = 100;
+    const int maxIt = 100;    // Empiric
     int it = 0;
     while(it < maxIt){  // We stablish a limit of 100 iterations without changing the candidate lineup
         s = pick_neighbor(players, lineup, money_available);
@@ -181,10 +181,10 @@ vp gen_candidate_list(const vp& players, unordered_map <string, int> n, const in
 Solution gen_arbitrary_lineup(const vp& players, unordered_map <string, int> n, const int& T){
     /*
     Generates a pseudo-greedy lineup given an array of players, the number of players in each position and a maximum cost
-    Returns the vector of players
+    Returns the solution in struct form
     */
     
-    const int ALPHA = 20; // Max number of candidate players
+    const int ALPHA = 20; // Max number of candidate players, empirically picked
     int money_available = T, price = 0, points = 0, randIdx;
     vp candidates, lineup;
     Player candidate;
@@ -193,7 +193,7 @@ Solution gen_arbitrary_lineup(const vp& players, unordered_map <string, int> n, 
     mt19937 gen(seed);
     for(int i = 0; i < 11; i++){    // Chooses every player from the lineup
         candidates = gen_candidate_list(players, n, money_available, ALPHA, banned);
-        uniform_int_distribution<> unif(0, candidates.size() - 1);  // To generate a random candidate position
+        uniform_int_distribution<> unif(0, candidates.size() - 1);  // Used to pick a candidate at random
         randIdx = unif(gen);
         candidate = candidates[randIdx];
         lineup.push_back(candidate);
@@ -210,7 +210,7 @@ Solution gen_arbitrary_lineup(const vp& players, unordered_map <string, int> n, 
 
 Solution get_solution(const vp& players, unordered_map <string, int> n, const int& T){
     /*
-    Generates a random lineup and improves it. Returns it as a Solution
+    Generates a random lineup and improves it. Returns it as a Solution struct
     */
     Solution solution = gen_arbitrary_lineup(players, n, T);
     return lineup_improvement(players, solution, T-solution.price);
