@@ -79,8 +79,8 @@ void write_solution(const Solution& sol){
 }
 
 
-bool possible_complete_from_partial(int i, int points, unordered_map <string, int> n, 
-                                    int max_points, unordered_map <string, int> unvisited){
+bool possible_complete_from_partial(int i, int points, unordered_map <string, int>& n, 
+                                    int max_points, unordered_map <string, int>& unvisited){
     /*
     Returns whether from the i-th player onwards a solution may exist or not.
 
@@ -105,8 +105,8 @@ bool possible_complete_from_partial(int i, int points, unordered_map <string, in
     return potential_points > max_points;
 }
 
-int lower_bound_price(int current_price, Player player, unordered_map <string, int> n, 
-                       unordered_map <string, int> min_price){
+int lower_bound_price(int current_price, Player player, unordered_map <string, int>& n, 
+                       unordered_map <string, int>& min_price){
     /*
     Returns the lower bound of the price if the current player is added.
     It is computed considering that the remaining players have the lowest price 
@@ -120,9 +120,9 @@ int lower_bound_price(int current_price, Player player, unordered_map <string, i
 }
 
 
-void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
-                  int& max_points, unordered_map <string, int> unvisited, 
-                  unordered_map <string, int> min_price, const int& T){
+void gen_solution(int i, Solution& sol, unordered_map <string, int>& n,
+                  int& max_points, unordered_map <string, int>& unvisited, 
+                  unordered_map <string, int>& min_price, const int& T){
     /*
         Fills up the lineup vector of sol and computes its points and price.
         The target is to maximize max_points while meeting the constraints given.
