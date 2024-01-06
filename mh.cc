@@ -43,19 +43,18 @@ unordered_map <string, vp> get_players_pos(const vp& lineup){
 }
 
 
-void write_result(const vp& lineup, const int& points, const int& price){
+void write_result(const Solution& sol){
     /*Writes the solution in the OUTPUT_FILE*/
 
     ofstream out(OUTPUT_FILE);
 
-    unordered_map <string, vp> players_pos = get_players_pos(lineup);
+    unordered_map <string, vp> players_pos = get_players_pos(sol.lineup);   
 
     chrono::high_resolution_clock::time_point end = chrono::high_resolution_clock::now();
     chrono::duration<double> duration = end - start;
     double time = duration.count();
     out << fixed << setprecision(1) << time << endl;
 
-       
     const vector <string> POSITIONS = {"por", "def", "mig", "dav"};
 
     for (string pos: POSITIONS){
@@ -68,8 +67,8 @@ void write_result(const vp& lineup, const int& points, const int& price){
         out << endl;
     }
 
-    out << "Punts: " << points << endl;
-    out << "Preu: " << price << endl;
+    out << "Punts: " << sol.points << endl;
+    out << "Preu: " << sol.price << endl;
     out.close();
 }
 
@@ -267,7 +266,7 @@ int main(int argc, char** argv){
     while(true){
         solution = get_lineup(PLAYERS, n, T);
         if (solution.points > best_points){
-            write_result(solution.lineup, solution.points, solution.price);
+            write_result(solution);
             best_points = solution.points;
         }
     }
