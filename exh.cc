@@ -101,8 +101,8 @@ bool new_possible_solutions(int i, int points, unordered_map <string, int> n,
 
 
 void gen_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
-                        int points, int& max_points,
-                        unordered_map <string, int> unvisited, const int& T){
+                        int points, int& max_points, unordered_map <string, int> unvisited, 
+                        unordered_map <string, int>& min_price, int& T){
     /*
         Fills up the lineup vector.
 
@@ -128,19 +128,20 @@ void gen_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
         Player player = PLAYERS[i];
         unvisited[player.pos]--;
 
-        if (n[player.pos] > 0 and cost + player.price <= T){
+        if (n[player.pos] > 0 and cost + player.price + n["por"]*min_price["por"] + n["def"]*min_price["def"] + n["dav"]*min_price["dav"] - min_price[player.pos] <= T){
             n[player.pos]--;
             lineup.push_back(player);
-            gen_lineup(i+1, lineup, n, cost + player.price, points + player.points, max_points, unvisited, T);
+            gen_lineup(i+1, lineup, n, cost + player.price, points + player.points, max_points, unvisited, min_price, T);
             n[player.pos]++;
             lineup.pop_back();
         }
-        gen_lineup(i+1, lineup, n, cost, points, max_points, unvisited, T);
+        gen_lineup(i+1, lineup, n, cost, points, max_points, unvisited, min_price, T);
     }
 }
 
 
-vp get_DB_players(string data_file, unordered_map <string, int>& unvisited, const int& J){
+vp get_DB_players(string data_file, unordered_map <string, int>& unvisited,
+                    unordered_map <string, int>& min_price, const int& J){
     /*Returns a vector of the players from data_file. Only contains the players whose price is less than 
     or equal to J. The map unvisited is modified, includes the information of how many players of each position 
     exist in the dataset.
@@ -166,6 +167,7 @@ vp get_DB_players(string data_file, unordered_map <string, int>& unvisited, cons
             Player player = {name, position, price, club, p};
             players.push_back(player);
             unvisited[position]++;
+            min_price[position] = min(price, min_price[position]);
         }
     }
     data.close();
@@ -202,14 +204,14 @@ int main(int argc, char** argv){
     
     unordered_map <string, int> n = {{"por", 1}, {"def", N1}, {"mig", N2}, {"dav", N3}};
     unordered_map <string, int> unvisited = {{"por", 0}, {"def", 0}, {"mig", 0}, {"dav", 0}};
-
+    unordered_map <string, int> m_min_price = {{"por", 2000000}, {"def", 2000000}, {"mig", 2000000}, {"dav", 2000000}};
     start = chrono::high_resolution_clock::now();
     
-    PLAYERS = get_DB_players(argv[1], unvisited, J);    // unvisited is modified
+    PLAYERS = get_DB_players(argv[1], unvisited, m_min_price, J);    // unvisited is modified
     sort(PLAYERS.begin(), PLAYERS.end(), comp);
     
     vp lineup;
     int max_points = 0;
     
-    gen_lineup(0, lineup, n, 0, 0, max_points, unvisited, T);
+    gen_lineup(0, lineup, n, 0, 0, max_points, unvisited, m_min_price, T);
 }
