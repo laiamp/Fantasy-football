@@ -42,32 +42,32 @@ unordered_map <string, vp> get_players_pos(const vp& lineup){
 }
 
 
-void write_result(const Solution& solution){
-    /*Writes the lineup, its points and its price in the OUTPUT_FILE*/
-    
+void write_result(const Solution& sol){
+    /*Writes the solution in the OUTPUT_FILE*/
+
     ofstream out(OUTPUT_FILE);
 
-    unordered_map <string, vp> players_pos = get_players_pos(solution.lineup);   
-    vector <string> positions = {"por", "def", "mig", "dav"};
+    unordered_map <string, vp> players_pos = get_players_pos(sol.lineup);   
 
     chrono::high_resolution_clock::time_point end = chrono::high_resolution_clock::now();
     chrono::duration<double> duration = end - start;
     double time = duration.count();
     out << fixed << setprecision(1) << time << endl;
 
-    for (string pos: positions){
+    const vector <string> POSITIONS = {"por", "def", "mig", "dav"};
+
+    for (string pos: POSITIONS){
         string pos_upper = pos;
         transform(pos_upper.begin(), pos_upper.end(), pos_upper.begin(), ::toupper);
-        
         out << pos_upper << ": "; 
         for (int i = 0; i < int(players_pos[pos].size()); i++){
             out << (i == 0 ? "" : ";") << players_pos[pos][i].name;
         }
         out << endl;
     }
-    
-    out << "Punts: " << solution.points << endl;
-    out << "Preu: " << solution.price << endl;
+
+    out << "Punts: " << sol.points << endl;
+    out << "Preu: " << sol.price << endl;
     out.close();
 }
 
@@ -100,16 +100,15 @@ bool new_possible_solutions(int i, int points, unordered_map <string, int> n,
 }
 
 
-void gen_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
-                        int points, int& max_points,
-                        unordered_map <string, int> unvisited, const int& T){
+void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
+                int& max_points, unordered_map <string, int> unvisited, const int& T){
     /*
         Fills up the lineup vector.
 
         Prerequisite: PLAYERS is sorted decreasingly by points.
 
         i: index of the current player from PLAYERS
-        lineup: chosen players at the moment
+        sol: solution being generated at the moment. Contains lineup vector, points int and price int
         n: map with the amount of the needed players per position
         cost: sum of the prices of the players currently in the lineup
         points: sum of the points of the players currently in the lineup
@@ -119,23 +118,27 @@ void gen_lineup(int i, vp& lineup, unordered_map <string, int> n, int cost,
     
     if (n["por"] == 0 and n["def"] == 0 and n["mig"] == 0 and n["dav"] == 0){
         
-        if (points > max_points){
-            max_points = points;
-            write_result({lineup, points, cost});
+        if (sol.points > max_points){
+            max_points = sol.points;
+            write_result(sol);
         }
     }
-    else if (new_possible_solutions(i, points, n, max_points, unvisited)){
+    else if (new_possible_solutions(i, sol.points, n, max_points, unvisited)){
         Player player = PLAYERS[i];
         unvisited[player.pos]--;
 
-        if (n[player.pos] > 0 and cost + player.price <= T){
+        if (n[player.pos] > 0 and sol.price + player.price <= T){
             n[player.pos]--;
             lineup.push_back(player);
-            gen_lineup(i+1, lineup, n, cost + player.price, points + player.points, max_points, unvisited, T);
+            sol.price += player.price;
+            sol.points += player.points;
+            gen_solution(i+1, sol, n, max_points, unvisited, T);
+            sol.price -= player.price;
+            sol.points -= player.points;
             n[player.pos]++;
             lineup.pop_back();
         }
-        gen_lineup(i+1, lineup, n, cost, points, max_points, unvisited, T);
+        gen_solution(i+1, sol, n, max_points, unvisited, T);
     }
 }
 
@@ -208,8 +211,7 @@ int main(int argc, char** argv){
     PLAYERS = get_DB_players(argv[1], unvisited, J);    // unvisited is modified
     sort(PLAYERS.begin(), PLAYERS.end(), comp);
     
-    vp lineup;
+    Solution sol = {{}, 0, 0};
     int max_points = 0;
-    
-    gen_lineup(0, lineup, n, 0, 0, max_points, unvisited, T);
+    gen_solution(0, sol, n, 0, 0, max_points, unvisited, T);
 }
