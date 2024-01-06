@@ -120,7 +120,7 @@ void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
         n: map with the amount of the needed players per position
         max_points: max of points of all the generated lineups until that moment
         unvisited: map with the amount of unvisited players per position
-        min_price: minimum price of a player of that position
+        min_price: map with the minimum price among all the players of that position
     */
     
     if (n["por"] == 0 and n["def"] == 0 and n["mig"] == 0 and n["dav"] == 0){
@@ -134,7 +134,10 @@ void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
         Player player = PLAYERS[i];
         unvisited[player.pos]--;
 
-        if (n[player.pos] > 0 and sol.price + player.price + n["por"]*min_price["por"] + n["def"]*min_price["def"] + n["mig"]*min_price["mig"] + n["dav"]*min_price["dav"] - min_price[player.pos] <= T){
+        if (n[player.pos] > 0 and sol.price + player.price
+                + n["por"]*min_price["por"] + n["def"]*min_price["def"] 
+                + n["mig"]*min_price["mig"] + n["dav"]*min_price["dav"] 
+                - min_price[player.pos] <= T){
             n[player.pos]--;
             sol.lineup.push_back(player);
             sol.price += player.price;
