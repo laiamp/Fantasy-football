@@ -105,6 +105,20 @@ bool possible_complete_from_partial(int i, int points, unordered_map <string, in
     return potential_points > max_points;
 }
 
+int lower_bound_price(int current_price, Player player, unordered_map <string, int> n, 
+                       unordered_map <string, int> min_price){
+    /*
+    Returns the lower bound of the price if the current player is added.
+    It is computed considering that the remaining players have the lowest price 
+    of their category.
+    */
+    
+    return current_price + player.price
+            + n["por"]*min_price["por"] + n["def"]*min_price["def"] 
+            + n["mig"]*min_price["mig"] + n["dav"]*min_price["dav"] 
+            - min_price[player.pos];
+}
+
 
 void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
                   int& max_points, unordered_map <string, int> unvisited, 
@@ -116,8 +130,8 @@ void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
         Prerequisite: PLAYERS is sorted decreasingly by points.
 
         i: index of the current player from PLAYERS
-        sol: solution being generated at the moment. Contains lineup vector, points int and price int
-        n: map with the amount of the needed players per position
+        sol: solution being generated at the moment. Contains lineup vector, its points and its price
+        n: map with the amount of needed players per position
         max_points: max of points of all the generated lineups until that moment
         unvisited: map with the amount of unvisited players per position
         min_price: map with the minimum price among all the players of that position
@@ -134,10 +148,7 @@ void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
         Player player = PLAYERS[i];
         unvisited[player.pos]--;
 
-        if (n[player.pos] > 0 and sol.price + player.price
-                + n["por"]*min_price["por"] + n["def"]*min_price["def"] 
-                + n["mig"]*min_price["mig"] + n["dav"]*min_price["dav"] 
-                - min_price[player.pos] <= T){
+        if (n[player.pos] > 0 and lower_bound_price(sol.price, player, n, min_price) <= T){
             n[player.pos]--;
             sol.lineup.push_back(player);
             sol.price += player.price;
