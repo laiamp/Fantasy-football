@@ -22,7 +22,7 @@ struct Solution{
     vector <Player> lineup;
     int points;
     int price;
-}
+};
 
 using vp = vector <Player>;
 
