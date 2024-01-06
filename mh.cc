@@ -110,7 +110,7 @@ Solution pick_neighbor(const vp& players, Solution s, const int& money_available
         if (pos == candidate.pos && price_diff <= money_available && !in_vector(s.lineup, candidate)){
             found = true;
             // Update new solution's parameters
-            s.points += (candidate.points - s.lineup[lineup_idx].points);
+            s.points += candidate.points - s.lineup[lineup_idx].points;
             s.price += price_diff;
             s.lineup[lineup_idx] = candidate;
         }
@@ -121,7 +121,7 @@ Solution pick_neighbor(const vp& players, Solution s, const int& money_available
 
 
 Solution lineup_improvement(const vp& players, Solution lineup, int money_available){
-    /*Given a possible lineup, it improves it and returns it as a solution
+    /*Given a possible lineup, it is improved and returned as a solution
     Implements a Simulated Annealing*/
     double T = 1e5, p;
     const double alpha = 0.99; 
