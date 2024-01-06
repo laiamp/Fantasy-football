@@ -23,8 +23,7 @@ struct Player{
 struct Solution{
     vector<Player> lineup;
     int price;
-    int points;
-
+    int points
 };
 
 using vp = vector <Player>;
@@ -33,8 +32,11 @@ string OUTPUT_FILE;
 chrono::high_resolution_clock::time_point start;
 
 unordered_map <string, vp> get_players_pos(const vp& lineup){
-    /*Returns an unordered map whose keys are the positions and the values 
-    are the players of the lineup in that position*/
+    /*
+    Returns an unordered map whose keys are the positions and the values 
+    are the players of the lineup in that position
+    */
+    
     unordered_map <string, vp> players_pos;
     for (Player p: lineup){
         players_pos[p.pos].push_back(p);
@@ -44,7 +46,10 @@ unordered_map <string, vp> get_players_pos(const vp& lineup){
 
 
 void write_solution(const Solution& sol){
-    /*Writes the solution in the OUTPUT_FILE*/
+    /*
+    Writes the execution time, the players of each position of the lineup,
+    its points and its price in the OUTPUT_FILE
+    */
 
     ofstream out(OUTPUT_FILE);
 
@@ -74,7 +79,7 @@ void write_solution(const Solution& sol){
 
 
 bool in_vector(const vp& v, const Player& P){
-    /*Returns true if Player p is found in vp v, otherwise returns false*/
+    /*Returns whether Player p is found in vp v*/
     for (Player p : v){
         if ((P.name == p.name)
             and (P.pos == p.pos)
@@ -92,6 +97,7 @@ Solution pick_neighbor(const vp& players, Solution s, const int& money_available
     Returns a solution with a player of the lineup changed with a random player from the available ones
     which can fit in the lineup given an amount of money
     */
+    
     const int N = players.size();
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     mt19937 gen(seed);
@@ -114,14 +120,16 @@ Solution pick_neighbor(const vp& players, Solution s, const int& money_available
             s.lineup[lineup_idx] = candidate;
         }
     }
-
     return s;
 }
 
 
 Solution lineup_improvement(const vp& players, Solution lineup, int money_available){
-    /*Given a possible lineup, it is improved and returned as a solution
-    Implements a Simulated Annealing*/
+    /*
+    Given a possible lineup, it is improved and returned as a solution
+    Implements a Simulated Annealing
+    */
+    
     double T = 1e5, p;
     const double alpha = 0.99; 
     Solution best = lineup, s;
@@ -149,8 +157,11 @@ Solution lineup_improvement(const vp& players, Solution lineup, int money_availa
 
 
 vp gen_candidate_list(const vp& players, unordered_map <string, int> n, const int& money_available, const int& ALPHA, const vp& banned){
-    /*Generates a candidate list with the players that could fit in the lineup with a max of alpha candidates
-    Prerequisite: players sorted by descending points*/
+    /*
+    Generates a candidate list with the players that could fit in the lineup with a max of alpha candidates
+    Prerequisite: players sorted by descending points
+    */
+    
     vp candidates(0);
     int i = 0;
     Player player;
@@ -168,8 +179,11 @@ vp gen_candidate_list(const vp& players, unordered_map <string, int> n, const in
 
 
 Solution gen_arbitrary_lineup(const vp& players, unordered_map <string, int> n, const int& T){
-    /*Generates a pseudo-greedy lineup given an array of players, the number of players in each position and a maximum cost
-    Returns the vector of players*/
+    /*
+    Generates a pseudo-greedy lineup given an array of players, the number of players in each position and a maximum cost
+    Returns the vector of players
+    */
+    
     const int ALPHA = 20; // Max number of candidate players
     int money_available = T, price = 0, points = 0, randIdx;
     vp candidates, lineup;
@@ -195,7 +209,9 @@ Solution gen_arbitrary_lineup(const vp& players, unordered_map <string, int> n, 
 
 
 Solution get_lineup(const vp& players, unordered_map <string, int> n, const int& T){
-    /*Generates a random lineup and improves it. Returns it as a Solution*/
+    /*
+    Generates a random lineup and improves it. Returns it as a Solution
+    */
     Solution solution = gen_arbitrary_lineup(players, n, T);
     return lineup_improvement(players, solution, T-solution.price);
 }
@@ -209,10 +225,10 @@ bool comp(const Player& a, const Player& b){
 
 
 vp get_DB_players(string data_file, const int& J){
-    /*Returns a vector of the players from data_file. Only contains the players whose price is less than 
+    /*
+    Returns a vector of the players from data_file. Only contains the players whose price is less than 
     or equal to J. 
-
-    format DB "Name;Position;Price;club;points"
+    DB format "Name;Position;Price;club;points"
     */
 
     ifstream data(data_file);
