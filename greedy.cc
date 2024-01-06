@@ -31,8 +31,10 @@ string OUTPUT_FILE;
 chrono::high_resolution_clock::time_point start;
 
 unordered_map <string, vp> get_players_pos(const vp& lineup){
-    /*Returns an unordered map whose keys are the positions and the values 
-    are the players of the lineup in that position*/
+    /*
+    Returns an unordered map whose keys are the positions and the values 
+    are the players of the lineup in that position
+    */
     unordered_map <string, vp> players_pos;
     for (Player p: lineup){
         players_pos[p.pos].push_back(p);
@@ -42,7 +44,10 @@ unordered_map <string, vp> get_players_pos(const vp& lineup){
 
 
 void write_solution(const Solution& sol){
-    /*Writes the solution in the OUTPUT_FILE*/
+    /*
+    Writes the execution time, the players of each position of the lineup,
+    its points and its price in the OUTPUT_FILE
+    */
 
     ofstream out(OUTPUT_FILE);
 
@@ -78,13 +83,13 @@ bool comp(const Player& p1, const Player& p2){
     */
 
     const float A = 3.2;
-    const float B = -1;
+    const float B = 1;
 
-    if (p1.points == p2.points) return p1.price < p2.price; //if both are 0, the return below wouldn't work
-    if (p1.price == 0) return false; //p1 fake
-    if (p2.price == 0) return true; //p2 fake
+    if (p1.points == p2.points) return p1.price < p2.price;    // if both are 0, the return below wouldn't work
+    if (p1.price == 0) return false;    // p1 fake
+    if (p2.price == 0) return true;    // p2 fake
 
-    return pow(p1.points, A)*pow(p1.price, B) > pow(p2.points, A)*pow(p2.price, B); 
+    return pow(p1.points, A)/pow(p1.price, B) > pow(p2.points, A)/pow(p2.price, B); 
 }
 
 
@@ -93,7 +98,7 @@ Solution get_solution(vp& players, unordered_map <string, int> n, const int& T){
         Returns a struct with the lineup, its points and its price
 
         players: vector with the players with a price <= J
-        n: map with the amount of the needed players per position
+        n: map with the amount of needed players per position
         T: maximum total price
     */
     
@@ -117,7 +122,8 @@ Solution get_solution(vp& players, unordered_map <string, int> n, const int& T){
 
 
 vp get_DB_players(const string& db_file, const int& J){
-    /*Returns a vector of the players from db_file. Only contains the players 
+    /*
+    Returns a vector of the players from db_file. Only contains the players 
     whose price is less than or equal to J.
     
     DB format: "Name;Position;Price;club;points"
