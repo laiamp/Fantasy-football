@@ -32,8 +32,11 @@ vp PLAYERS;
 
 
 unordered_map <string, vp> get_players_pos(const vp& lineup){
-    /*Returns an unordered map whose keys are the positions and the values 
-    are the players of the lineup in that position*/
+    /*
+    Returns an unordered map whose keys are the positions and the values 
+    are the players of the lineup in that position
+    */
+    
     unordered_map <string, vp> players_pos;
     for (Player p: lineup){
         players_pos[p.pos].push_back(p);
@@ -43,8 +46,10 @@ unordered_map <string, vp> get_players_pos(const vp& lineup){
 
 
 void write_solution(const Solution& sol){
-    /*Writes the execution time, the players of each position of the lineup,
-    its points and its price in the OUTPUT_FILE*/
+    /*
+    Writes the execution time, the players of each position of the lineup,
+    its points and its price in the OUTPUT_FILE
+    */
 
     ofstream out(OUTPUT_FILE);
 
@@ -74,7 +79,7 @@ void write_solution(const Solution& sol){
 
 
 bool possible_complete_from_partial(int i, int points, unordered_map <string, int> n, 
-                            int max_points, unordered_map <string, int> unvisited){
+                                    int max_points, unordered_map <string, int> unvisited){
     /*
     Returns whether from the i-th player onwards a solution may exist or not.
 
@@ -83,7 +88,6 @@ bool possible_complete_from_partial(int i, int points, unordered_map <string, in
     i: index of the current player from PLAYERS
     n: map with the amount of the needed players per position
     points: sum of the points of the players currently in the lineup
-    cost: sum of the prices of the players currently in the lineup
     max_points: max of points of all the generated lineups until that moment
     */
 
@@ -102,7 +106,7 @@ bool possible_complete_from_partial(int i, int points, unordered_map <string, in
 
 
 void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
-                int& max_points, unordered_map <string, int> unvisited, const int& T){
+                  int& max_points, unordered_map <string, int> unvisited, const int& T){
     /*
         Fills up the lineup vector of sol and computes its points and price.
         The target is to maximize max_points while meeting the constraints given.
@@ -144,7 +148,8 @@ void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
 
 
 vp get_DB_players(string data_file, unordered_map <string, int>& unvisited, const int& J){
-    /*Returns a vector of the players from data_file. Only contains the players whose price is less than 
+    /*
+    Returns a vector of the players from data_file. Only contains the players whose price is less than 
     or equal to J. The map unvisited is modified, so that includes the information of how many players of 
     each position exist in the dataset without surpassing J.
     
@@ -177,7 +182,7 @@ vp get_DB_players(string data_file, unordered_map <string, int>& unvisited, cons
 
 
 bool comp(const Player& a, const Player& b) {
-    /*Auxiliar function to sort the players depending on their points*/
+    /*Auxiliar function to sort the players descending by points*/
     if(a.points == b.points) return a.price < b.price;
     return a.points > b.points;
 }
