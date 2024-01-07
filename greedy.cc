@@ -115,7 +115,7 @@ Solution get_solution(vp& players, unordered_map <string, int> n, const int T){
             price += player.price;
             points += player.points;
         }
-        i++;
+        i++;    // due to fake players it is guaranteed that the lineup will be filled before surpassing players.size() 
     }
     return {lineup, points, price};
 }
