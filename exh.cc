@@ -105,6 +105,7 @@ bool possible_complete_from_partial(int i, int points, const unordered_map <stri
     return potential_points > max_points;
 }
 
+
 int lower_bound_price(Player player, int current_price, const unordered_map <string, int>& n, 
                        const unordered_map <string, int>& min_price){
     /*
@@ -168,8 +169,11 @@ vp get_DB_players(string data_file, unordered_map <string, int>& unvisited,
                   unordered_map <string, int>& min_price, int J){
     /*
     Returns a vector of the players from data_file. Only contains the players whose price is less than 
-    or equal to J. The map unvisited is modified, so that includes the information of how many players of 
-    each position exist in the dataset without surpassing J.
+    or equal to J. 
+    
+    Modifies the maps
+    unvisited: includes how many players of each position don't exceed price J.
+    min_price: minimum price that exists from a player in that position
     
     DB format "Name;Position;Price;club;points"
     */
