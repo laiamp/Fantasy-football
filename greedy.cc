@@ -93,7 +93,7 @@ bool comp(const Player& p1, const Player& p2){
 }
 
 
-Solution get_solution(vp& players, unordered_map <string, int> n, const int& T){
+Solution get_solution(vp& players, unordered_map <string, int> n, const int T){
     /*
         Returns a struct with the lineup, its points and its price
 
