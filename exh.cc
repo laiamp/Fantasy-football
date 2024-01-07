@@ -105,7 +105,7 @@ bool possible_complete_from_partial(int i, int points, const unordered_map <stri
     return potential_points > max_points;
 }
 
-int lower_bound_price(int current_price, Player player, const unordered_map <string, int>& n, 
+int lower_bound_price(Player player, int current_price, const unordered_map <string, int>& n, 
                        const unordered_map <string, int>& min_price){
     /*
     Returns the lower bound of the price if the current player is added.
@@ -113,7 +113,7 @@ int lower_bound_price(int current_price, Player player, const unordered_map <str
     of their category.
     */
     
-    return current_price + player.price
+    return player.price + current_price
             + n.at("por")*min_price.at("por") + n.at("def")*min_price.at("def")
             + n.at("mig")*min_price.at("mig") + n.at("dav")*min_price.at("dav")
             - min_price.at(player.pos);
@@ -148,7 +148,7 @@ void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
         Player player = PLAYERS[i];
         unvisited[player.pos]--;
 
-        if (n[player.pos] > 0 and lower_bound_price(sol.price, player, n, min_price) <= T){
+        if (n[player.pos] > 0 and lower_bound_price(player, sol.price, n, min_price) <= T){
             n[player.pos]--;
             sol.lineup.push_back(player);
             sol.price += player.price;
