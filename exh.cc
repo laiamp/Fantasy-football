@@ -207,7 +207,7 @@ vp get_DB_players(string data_file, unordered_map <string, int>& unvisited,
         }
     }
     data.close();
-    sort(PLAYERS.begin(), PLAYERS.end(), comp);
+    sort(players.begin(), players.end(), comp);
     return players;
 }
 
