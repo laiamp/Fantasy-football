@@ -226,8 +226,8 @@ bool comp(const Player& a, const Player& b){
 
 vp get_DB_players(string data_file, const int& J){
     /*
-    Returns a vector of the players from data_file. Only contains the players whose price is less than 
-    or equal to J. 
+    Returns a vector of the players from data_file sorted by points in descending order. 
+    Only contains the players whose price is less than or equal to J. 
     DB format "Name;Position;Price;club;points"
     */
 
@@ -275,7 +275,7 @@ int main(int argc, char** argv){
     unordered_map <string, int> n = {{"por", 1}, {"def", N1}, {"mig", N2}, {"dav", N3}};
     start = chrono::high_resolution_clock::now();
 
-    const vp PLAYERS = get_DB_players(argv[1], J);
+    const vp PLAYERS = get_DB_players(argv[1], J);    // filtered and sorted
 
     int best_points = -1;
     Solution solution;
