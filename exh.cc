@@ -106,7 +106,7 @@ bool possible_complete_from_partial(int i, int points, const unordered_map <stri
 }
 
 
-int lower_bound_price(Player player, int current_price, const unordered_map <string, int>& n, 
+int lower_bound_price(const Player& player, int current_price, const unordered_map <string, int>& n, 
                        const unordered_map <string, int>& min_price){
     /*
     Returns the lower bound of the price if the current player is added.
@@ -123,7 +123,7 @@ int lower_bound_price(Player player, int current_price, const unordered_map <str
 
 void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
                   int& max_points, unordered_map <string, int> unvisited, 
-                  const unordered_map <string, int>& min_price, int T){
+                  const unordered_map <string, int>& min_price, const int T){
     /*
         Fills up the lineup vector of sol and computes its points and price.
         The target is to maximize max_points while meeting the constraints given.
@@ -166,7 +166,7 @@ void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
 
 
 vp get_DB_players(string data_file, unordered_map <string, int>& unvisited,
-                  unordered_map <string, int>& min_price, int J){
+                  unordered_map <string, int>& min_price, const int J){
     /*
     Returns a vector of the players from data_file. Only contains the players whose price is less than 
     or equal to J. 
