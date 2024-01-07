@@ -111,7 +111,7 @@ int lower_bound_price(Player player, int current_price, const unordered_map <str
     /*
     Returns the lower bound of the price if the current player is added.
     It is computed considering that the remaining players have the lowest price 
-    of their category.
+    of their position.
     */
     
     return player.price + current_price
