@@ -173,7 +173,7 @@ vp get_DB_players(string data_file, unordered_map <string, int>& unvisited,
     
     Modifies the maps
     unvisited: includes how many players of each position don't exceed price J.
-    min_price: minimum price that exists from a player in that position
+    min_price: minimum price among all players in that position
     
     DB format "Name;Position;Price;club;points"
     */
