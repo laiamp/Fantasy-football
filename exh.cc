@@ -84,7 +84,7 @@ bool possible_complete_from_partial(int i, int points, const unordered_map <stri
     /*
     Returns whether from the i-th player onwards a solution may exist or not.
 
-    Prerequisite: PLAYERS is sorted descending by points.
+    Prerequisite: PLAYERS is sorted in descending order by points.
 
     i: index of the current player from PLAYERS
     n: map with the amount of the needed players per position
@@ -98,7 +98,7 @@ bool possible_complete_from_partial(int i, int points, const unordered_map <stri
     
     if (n.at(PLAYERS[i].pos) > unvisited.at(PLAYERS[i].pos)) return false;    // not enough players left of this position
     
-    int potential_points = points;
+    int potential_points = points;    // PLAYERS is sorted by points
     for (int j = i; j < i + remaining; j++){
         potential_points += PLAYERS[j].points;
     }
@@ -126,7 +126,7 @@ void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
                   const unordered_map <string, int>& min_price, const int T){
     /*
         Fills up the lineup vector of sol and computes its points and price.
-        The target is to maximize max_points while meeting the constraints given.
+        The target is to maximize max_points while meeting the T constraint.
 
         Prerequisite: PLAYERS is sorted decreasingly by points.
 
@@ -165,11 +165,18 @@ void gen_solution(int i, Solution& sol, unordered_map <string, int> n,
 }
 
 
+bool comp(const Player& a, const Player& b) {
+    /*Auxiliar function to sort the players in descending order by points*/
+    if(a.points == b.points) return a.price < b.price;
+    return a.points > b.points;
+}
+
+
 vp get_DB_players(string data_file, unordered_map <string, int>& unvisited,
                   unordered_map <string, int>& min_price, const int J){
     /*
-    Returns a vector of the players from data_file. Only contains the players whose price is less than 
-    or equal to J. 
+    Returns a vector of the players from data_file. Only contains the players whose price 
+    is less than or equal to J. 
     
     Modifies the maps
     unvisited: includes how many players of each position don't exceed price J.
@@ -200,14 +207,8 @@ vp get_DB_players(string data_file, unordered_map <string, int>& unvisited,
         }
     }
     data.close();
+    sort(PLAYERS.begin(), PLAYERS.end(), comp);
     return players;
-}
-
-
-bool comp(const Player& a, const Player& b) {
-    /*Auxiliar function to sort the players descending by points*/
-    if(a.points == b.points) return a.price < b.price;
-    return a.points > b.points;
 }
 
 
@@ -240,9 +241,9 @@ int main(int argc, char** argv){
                                                 };
 
     start = chrono::high_resolution_clock::now();
-    
-    PLAYERS = get_DB_players(argv[1], unvisited, min_price, J);    // unvisited is modified
-    sort(PLAYERS.begin(), PLAYERS.end(), comp);
+
+    // PLAYERS is filtered and sorted by points
+    PLAYERS = get_DB_players(argv[1], unvisited, min_price, J);    // unvisited and min_price are modified
     
     Solution sol = {{}, 0, 0};
     int max_points = 0;
