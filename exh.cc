@@ -111,7 +111,7 @@ int lower_bound_price(const Player& player, int current_price, const unordered_m
     /*
     Returns the lower bound of the price if the current player is added.
     It is computed considering that the remaining players have the lowest price 
-    of their category.
+    of their position.
     */
     
     return player.price + current_price
@@ -173,7 +173,7 @@ vp get_DB_players(string data_file, unordered_map <string, int>& unvisited,
     
     Modifies the maps
     unvisited: includes how many players of each position don't exceed price J.
-    min_price: minimum price that exists from a player in that position
+    min_price: minimum price among all players in that position
     
     DB format "Name;Position;Price;club;points"
     */
