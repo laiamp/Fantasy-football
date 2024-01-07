@@ -7,7 +7,7 @@
 #include <chrono>
 #include <cstring>
 #include <iomanip>
-#include <limits>
+#include <limits.h>
 
 using namespace std;
 
@@ -234,10 +234,10 @@ int main(int argc, char** argv){
     
     unordered_map <string, int> n = {{"por", 1}, {"def", N1}, {"mig", N2}, {"dav", N3}};
     unordered_map <string, int> unvisited = {{"por", 0}, {"def", 0}, {"mig", 0}, {"dav", 0}};
-    unordered_map <string, int> min_price = {{"por", numeric_limits<int>::max()},
-                                                {"def", numeric_limits<int>::max()},
-                                                {"mig", numeric_limits<int>::max()},
-                                                {"dav", numeric_limits<int>::max()}
+    unordered_map <string, int> min_price = {{"por", INT_MAX},
+                                                {"def", INT_MAX},
+                                                {"mig", INT_MAX},
+                                                {"dav", INT_MAX}
                                                 };
 
     start = chrono::high_resolution_clock::now();
